@@ -89,11 +89,12 @@ const styles = StyleSheet.create({
   },
   card: {
     width: "100%",
-    height: "70%",
+    height: "75%",
     backgroundColor: "white",
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
     padding: 25,
+    paddingTop: 50,
     alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.1,
