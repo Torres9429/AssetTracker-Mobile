@@ -4,6 +4,7 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import { Ionicons } from '@expo/vector-icons';
 import MainTabNavigator from './MainTabNavigator';
 import EdificiosScreen from '../screens/EdificiosScreen';
+import EspaciosScreen from '../screens/EspaciosScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,13 +24,11 @@ export default function BottomTabNavigator() {
         tabBarActiveTintColor: 'gray',
         tabBarInactiveTintColor: '#FFFFFF',
         tabBarStyle: {
-          backgroundColor: 'transparent',
+          backgroundColor: 'rgba(0,0,0,0)',
           height: 60,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 10 },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.5,
-          elevation: 5,
+
+          position: 'absolute',
+          borderTopWidth: 0,
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -43,6 +42,7 @@ export default function BottomTabNavigator() {
         options={{ headerShown: false, title: 'Home' }}
       />}
       <Tab.Screen name="Edificios" component={EdificiosScreen} options={{ headerShown: false, title: 'Home' }} />
+      <Tab.Screen name="Espacios" component={EspaciosScreen} options={{ headerShown: false, title: 'Espacios' }} />
     </Tab.Navigator>
   );
 }

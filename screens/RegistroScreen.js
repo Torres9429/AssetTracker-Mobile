@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     color: "#2B50EC",
-    marginBottom: 20,
+    marginBottom: 50,
   },
   inputContainer: {
     flexDirection: 'row',

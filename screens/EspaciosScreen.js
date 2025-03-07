@@ -1,38 +1,38 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, FlatList, ImageBackground, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import edificios from '../data/edificios';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-export default function EdificiosScreen() {
+export default function EspaciosScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
+    const route = useRoute();
+    const { edificio } = route.params;
 
-    const filteredEdificios = edificios.filter((edificio) =>
-        edificio.nombre.toLowerCase().includes(search.toLowerCase())
+    const filteredEspacios = edificio.espacios.filter((espacio) =>
+        espacio.nombre.toLowerCase().includes(search.toLowerCase())
     );
 
-    const handleCardPress = (item) => {
-        navigation.navigate('Espacios', { edificio: item });
-      };
-
-    const renderEdificio = ({ item }) => (
-        <TouchableOpacity style={styles.edificioContainer} onPress={() => handleCardPress(item)}>
-            {item.imagen && <Image source={{ uri: item.imagen }} style={styles.edificioImagen} />}
-            <Text style={styles.edificioNombre}>{item.nombre}</Text>
-            <Text style={styles.edificioPisos}>Pisos: {item.pisos}</Text>
-        </TouchableOpacity>
+    const renderEspacio = ({ item }) => (
+        <View style={styles.espacioContainer}>
+            {item.imagen && <Image source={{ uri: item.imagen }} style={styles.espacioImagen} />}
+            <Text style={styles.espacioNombre}>{item.nombre}</Text>
+            <Text style={styles.espacioDescripcion}>{item.descripcion}</Text>
+        </View>
     );
 
     return (
         <ImageBackground source={require('../assets/dataBackground.png')} style={styles.container} resizeMode='cover'>
             {/* Header */}
             <View style={styles.header}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={24} color="white" />
+                </TouchableOpacity>
                 <View style={styles.searchBarContainer}>
                     <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
                     <TextInput
                         style={styles.searchBar}
-                        placeholder="Buscar edificio..."
+                        placeholder="Buscar espacio..."
                         placeholderTextColor="#999"
                         value={search}
                         onChangeText={setSearch}
@@ -40,19 +40,18 @@ export default function EdificiosScreen() {
                 </View>
             </View>
             <View style={styles.containerData}>
-                {/* Edificios */}
-                <Text style={styles.sectionTitle}>Edificios</Text>
+                {/* Espacios */}
+                <Text style={styles.sectionTitle}>Espacios</Text>
                 <FlatList
-                    data={filteredEdificios}
-                    renderItem={renderEdificio}
-                    keyExtractor={(edificio) => edificio.id.toString()}
+                    data={filteredEspacios}
+                    renderItem={renderEspacio}
+                    keyExtractor={(espacio) => espacio.id ? espacio.id.toString() : Math.random().toString()}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     numColumns={2}
                     columnWrapperStyle={{ justifyContent: 'space-between' }} 
                 />
             </View>
-           
         </ImageBackground>
     );
 }
@@ -67,8 +66,10 @@ const styles = StyleSheet.create({
         marginTop: 50,
         marginHorizontal: 20,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
+    },
+    backButton: {
+        marginRight: 10,
     },
     searchBarContainer: {
         flexDirection: 'row',
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
         paddingBottom: 30,
         paddingHorizontal: 10,
     },
-    edificioContainer: {
+    espacioContainer: {
         flex: 1,
         alignItems: 'center',
         backgroundColor: 'white',
@@ -119,24 +120,23 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 6,
         elevation: 3,
-        //borderColor: '#416FDF',
-        //borderWidth: 1,
     },
-    edificioImagen: {
+    espacioImagen: {
         width: 70,
         height: 70,
         borderRadius: 12,
     },
-    edificioNombre: {
+    espacioNombre: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
         marginTop: 8,
     },
-    edificioPisos: {
+    espacioDescripcion: {
         fontSize: 14,
         color: '#757575',
         fontWeight: '500',
         marginTop: 4,
     },
 });
+

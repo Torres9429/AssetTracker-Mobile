@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import edificios from '../data/edificios';
 import { useNavigation } from '@react-navigation/native';
 
-export default function EdificiosScreen() {
+export default function HomeScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
 
