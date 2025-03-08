@@ -59,6 +59,15 @@ const InicioSesionScreen = ({ navigation }) => {
             <Text style={styles.signUpText}>
               ¿No tienes una cuenta? <Text style={styles.link} onPress={() => navigation.navigate("SignUp")}>Regístrate</Text>
             </Text>
+            {/*<View style={styles.dividerContainer}>
+              <View style={styles.line} />
+              <Text style={styles.dividerText}>¿Olvidaste tu contraseña?</Text>
+              <View style={styles.line} />
+            </View>*/}
+            <View style={styles.line} />
+            <Text style={styles.signUpText}>
+              ¿Olvidaste tu contraseña? <Text style={styles.link} onPress={() => navigation.navigate("RecuperarContra")}>Recuperar contraseña</Text>
+            </Text>
           </View>
         </View>
       </SafeAreaView>
@@ -145,8 +154,33 @@ const styles = StyleSheet.create({
   },
   signUpText: {
     color: "#555",
-    marginTop: 10,
+    //marginTop: 20,
+    marginVertical: 20,
   },
+  dividerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    marginVertical: 20,
+  },
+  /*line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#ccc",
+    marginHorizontal: 10,
+  },*/
+  line: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "#F0F0F0",
+    //marginVertical: 10,
+  },
+  
+  dividerText: {
+    fontSize: 16,
+    color: "#888",
+  },
+
 });
 
 export default InicioSesionScreen;
