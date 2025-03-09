@@ -25,7 +25,7 @@ export default function EdificiosScreen() {
     );
 
     return (
-        <ImageBackground source={require('../assets/dataBackground.png')} style={styles.container} resizeMode='cover'>
+        <ImageBackground source={require('../assets/backgroundSecondary.png')} style={styles.container} resizeMode='cover'>
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.searchBarContainer}>

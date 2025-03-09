@@ -2,6 +2,8 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import EdificiosScreen from '../screens/EdificiosScreen';
 import EspaciosScreen from '../screens/EspaciosScreen';
+import InventariosEspacioScreen from '../screens/InventariosEspacioScreen';
+import InventariosScreen from '../screens/InventariosScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,12 +20,17 @@ export default function InventariosStack() {
         component={EspaciosScreen}
         options={{ headerShown: false }}
       />
-      {/*<Stack.Screen
+      <Stack.Screen
         name="Inventarios"
-        component={InventariosPorEspacioScreen}
+        component={InventariosEspacioScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="Recursos"
+        component={InventariosScreen}
+        options={{ headerShown: false }}
+      />
+      {/*<Stack.Screen
         name="DetallesRecurso"
         component={DetallesRecursoScreen}
         options={{ headerShown: false }}

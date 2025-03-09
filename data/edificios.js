@@ -5,19 +5,19 @@ const edificios = [
     pisos: 2,
     imagen: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStzzW-UgA49FcrKOkc0uj3ng72hUxiuT5gpg&s',
     espacios: [
-      { 
-        nombre: "Aula 1", 
-        recursos: 10, 
-        ultimaActualizacion: "2023-10-01", 
-        imagen: "https://www.google.com/imgres?q=aulas&imgurl=https%3A%2F%2Fimg.freepik.com%2Fvector-premium%2Fdiseno-interiores-aulas-mobiliario-decoracion_1308-77146.jpg&imgrefurl=https%3A%2F%2Fwww.freepik.es%2Fvector-premium%2Fdiseno-interiores-aulas-mobiliario-decoracion_20771716.htm&docid=A9Z_54w1H5LulM&tbnid=MQNrbDSgXnwxsM&vet=12ahUKEwiqh-2v8N2LAxViMNAFHWewEbsQM3oECH0QAA..i&w=626&h=418&hcb=2&ved=2ahUKEwiqh-2v8N2LAxViMNAFHWewEbsQM3oECH0QAA",
+      {
+        nombre: "Aula 1",
+        recursos: 10,
+        ultimaActualizacion: "2023-10-01",
+        imagen: "https://img.freepik.com/vector-premium/diseno-interiores-aulas-mobiliario-decoracion_1308-77146.jpg",
         inventarios: [
           { fecha: "2023-09-30", cantidad: 8, imagen: "https://example.com/inventario1.jpg" },
           { fecha: "2023-10-01", cantidad: 10, imagen: "https://example.com/inventario2.jpg" }
         ]
       },
-      { 
-        nombre: "Aula 2", 
-        recursos: 15, 
+      {
+        nombre: "Aula 2",
+        recursos: 15,
         ultimaActualizacion: "2023-10-02",
         inventarios: [
           { fecha: "2023-09-29", cantidad: 14, imagen: "https://example.com/inventario3.jpg" }
@@ -69,23 +69,38 @@ const edificios = [
     nombre: "Docencia 6",
     pisos: 2,
     espacios: [
-      { 
-        nombre: "Aula 1", 
-        recursos: 10, 
-        ultimaActualizacion: "2023-10-01", 
+      {
+        nombre: "Aula 1",
+        recursos: 10,
+        ultimaActualizacion: "2023-10-01",
         inventarios: [
-          { 
-            fecha: "2023-09-30", 
-            cantidad: 8, 
+          {
+            fecha: "2023-09-30",
+            cantidad: 8,
             imagen: "https://example.com/inventario1.jpg",
             recursos: [
-              { codigo: "M001", descripcion: "Mesa de estudio", marca: "IKEA", modelo: "ModA", nSerie: "12345" },
-              { codigo: "S001", descripcion: "Silla ergonómica", marca: "IKEA", modelo: "ModB", nSerie: "54321" }
+              {
+                id: 1,
+                nombre: 'Silla',
+                codigo: '5101LC-04-089',
+                image: require('../assets/imageSilla.png'),
+                marca: 'Raquiez',
+                modelo: 'RE',
+                categoria: 'Butaca',
+                numSerie: 'S/N',
+                responsable: 'Martha Fabiola Wences',
+                observaciones: 'Tiene el respaldo rasgado',
+                ubicacion: {
+                  edificio: 'Docencia 2',
+                  espacios: 'Aula 1'
+                },
+              },
+              { id: 2, nombre: 'Proyector', codigo: "S001", descripcion: "Silla ergonómica", marca: "IKEA", modelo: "ModB", nSerie: "54321" }
             ]
           },
-          { 
-            fecha: "2023-10-01", 
-            cantidad: 10, 
+          {
+            fecha: "2023-10-01",
+            cantidad: 10,
             imagen: "https://example.com/inventario2.jpg",
             recursos: [
               { codigo: "TV001", descripcion: "Televisor LED", marca: "Samsung", modelo: "QLED", nSerie: "11111" }
@@ -93,14 +108,14 @@ const edificios = [
           }
         ]
       },
-      { 
-        nombre: "Aula 2", 
-        recursos: 15, 
+      {
+        nombre: "Aula 2",
+        recursos: 15,
         ultimaActualizacion: "2023-10-02",
         inventarios: [
-          { 
-            fecha: "2023-09-29", 
-            cantidad: 14, 
+          {
+            fecha: "2023-09-29",
+            cantidad: 14,
             imagen: "https://example.com/inventario3.jpg",
             recursos: [
               { codigo: "C001", descripcion: "Cable HDMI", marca: "Belkin", modelo: "X100", nSerie: "22222" }
@@ -114,14 +129,14 @@ const edificios = [
     id: 7,
     nombre: "Docencia 2",
     espacios: [
-      { 
-        nombre: "Aula 1", 
-        recursos: 8, 
+      {
+        nombre: "Aula 1",
+        recursos: 8,
         ultimaActualizacion: "2023-10-01",
         inventarios: [
-          { 
-            fecha: "2023-09-28", 
-            cantidad: 7, 
+          {
+            fecha: "2023-09-28",
+            cantidad: 7,
             imagen: "https://example.com/inventario4.jpg",
             recursos: [
               { codigo: "S002", descripcion: "Silla de conferencia", marca: "Herman Miller", modelo: "CM1", nSerie: "33333" }
@@ -129,14 +144,14 @@ const edificios = [
           }
         ]
       },
-      { 
-        nombre: "Aula 2", 
-        recursos: 12, 
+      {
+        nombre: "Aula 2",
+        recursos: 12,
         ultimaActualizacion: "2023-10-03",
         inventarios: [
-          { 
-            fecha: "2023-09-27", 
-            cantidad: 12, 
+          {
+            fecha: "2023-09-27",
+            cantidad: 12,
             imagen: "https://example.com/inventario5.jpg",
             recursos: [
               { codigo: "M002", descripcion: "Mesa de reunión", marca: "IKEA", modelo: "ModC", nSerie: "44444" }
@@ -174,23 +189,38 @@ const edificios = [
     id: 11,
     nombre: "Docencia 1",
     espacios: [
-      { 
-        nombre: "Aula 1", 
-        recursos: 10, 
-        ultimaActualizacion: "2023-10-01", 
+      {
+        nombre: "Aula 1",
+        recursos: 10,
+        ultimaActualizacion: "2023-10-01",
         inventarios: [
-          { 
-            fecha: "2023-09-30", 
-            cantidad: 8, 
+          {
+            fecha: "2023-09-30",
+            cantidad: 8,
             imagen: "https://example.com/inventario1.jpg",
             recursos: [
-              { codigo: "M001", descripcion: "Mesa de estudio", marca: "IKEA", modelo: "ModA", nSerie: "12345" },
+              {
+                id: 1,
+                nombre: 'Silla',
+                codigo: '5101LC-04-089',
+                image: require('../assets/imageSilla.png'),
+                marca: 'Raquiez',
+                modelo: 'RE',
+                categoria: 'Butaca',
+                numSerie: 'S/N',
+                responsable: 'Martha Fabiola Wences',
+                observaciones: 'Tiene el respaldo rasgado',
+                ubicacion: {
+                  edificio: 'Docencia 2',
+                  espacios: 'Aula 1'
+                },
+              },
               { codigo: "S001", descripcion: "Silla ergonómica", marca: "IKEA", modelo: "ModB", nSerie: "54321" }
             ]
           },
-          { 
-            fecha: "2023-10-01", 
-            cantidad: 10, 
+          {
+            fecha: "2023-10-01",
+            cantidad: 10,
             imagen: "https://example.com/inventario2.jpg",
             recursos: [
               { codigo: "TV001", descripcion: "Televisor LED", marca: "Samsung", modelo: "QLED", nSerie: "11111" }
@@ -198,14 +228,14 @@ const edificios = [
           }
         ]
       },
-      { 
-        nombre: "Aula 2", 
-        recursos: 15, 
+      {
+        nombre: "Aula 2",
+        recursos: 15,
         ultimaActualizacion: "2023-10-02",
         inventarios: [
-          { 
-            fecha: "2023-09-29", 
-            cantidad: 14, 
+          {
+            fecha: "2023-09-29",
+            cantidad: 14,
             imagen: "https://example.com/inventario3.jpg",
             recursos: [
               { codigo: "C001", descripcion: "Cable HDMI", marca: "Belkin", modelo: "X100", nSerie: "22222" }
@@ -219,14 +249,14 @@ const edificios = [
     id: 12,
     nombre: "Docencia 2",
     espacios: [
-      { 
-        nombre: "Aula 1", 
-        recursos: 8, 
+      {
+        nombre: "Aula 1",
+        recursos: 8,
         ultimaActualizacion: "2023-10-01",
         inventarios: [
-          { 
-            fecha: "2023-09-28", 
-            cantidad: 7, 
+          {
+            fecha: "2023-09-28",
+            cantidad: 7,
             imagen: "https://example.com/inventario4.jpg",
             recursos: [
               { codigo: "S002", descripcion: "Silla de conferencia", marca: "Herman Miller", modelo: "CM1", nSerie: "33333" }
@@ -234,14 +264,14 @@ const edificios = [
           }
         ]
       },
-      { 
-        nombre: "Aula 2", 
-        recursos: 12, 
+      {
+        nombre: "Aula 2",
+        recursos: 12,
         ultimaActualizacion: "2023-10-03",
         inventarios: [
-          { 
-            fecha: "2023-09-27", 
-            cantidad: 12, 
+          {
+            fecha: "2023-09-27",
+            cantidad: 12,
             imagen: "https://example.com/inventario5.jpg",
             recursos: [
               { codigo: "M002", descripcion: "Mesa de reunión", marca: "IKEA", modelo: "ModC", nSerie: "44444" }

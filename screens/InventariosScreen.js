@@ -3,25 +3,29 @@ import { View, Text, StyleSheet, Image, TextInput, FlatList, ImageBackground, To
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-export default function EspaciosScreen() {
+export default function InventariosScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
     const route = useRoute();
-    const { edificio } = route.params;
+    const { inventario } = route.params;
 
-    const filteredEspacios = edificio.espacios.filter((espacio) =>
-        espacio.nombre.toLowerCase().includes(search.toLowerCase())
+    // Verifica que inventarios sea un array
+    if (!Array.isArray(inventario)) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.errorText}>No se encontraron inventarios.</Text>
+            </View>
+        );
+    }
+
+    const filteredInventarios = inventario.filter((recurso) =>
+        recurso.nombre && recurso.nombre.toLowerCase().includes(search.toLowerCase())
     );
-    const handleCardPress = (item) => {
-        navigation.navigate('Inventarios', { espacio: item });
-      };
 
-    const renderEspacio = ({ item }) => (
-        <TouchableOpacity style={styles.espacioContainer} onPress={() => handleCardPress(item)}>
-            {item.imagen && <Image source={{ uri: item.imagen }} style={styles.espacioImagen} />}
-            <Text style={styles.espacioNombre}>{item.nombre}</Text>
-            <Text style={styles.espacioDescripcion}>{item.descripcion}</Text>
-        </TouchableOpacity>
+    const renderRecurso = ({ item }) => (
+        <View style={styles.recursoContainer}>
+            <Text style={styles.recursoTexto}>{item.codigo} - {item.nombre}</Text>
+        </View>
     );
 
     return (
@@ -35,24 +39,26 @@ export default function EspaciosScreen() {
                     <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
                     <TextInput
                         style={styles.searchBar}
-                        placeholder="Buscar espacio..."
+                        placeholder="Buscar recurso..."
                         placeholderTextColor="#999"
                         value={search}
                         onChangeText={setSearch}
                     />
                 </View>
+                <TouchableOpacity style={{backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25}} onPress={() => navigation.goBack()}>
+                    <Ionicons name="add" size={20} color="white" />
+                    <Text style={{ color: 'white', fontSize: 16,  }}>Nuevo</Text>
+                </TouchableOpacity>
             </View>
             <View style={styles.containerData}>
-                {/* Espacios */}
-                <Text style={styles.sectionTitle}>Espacios</Text>
+                {/* Inventarios */}
+                <Text style={styles.sectionTitle}>Recursos del inventario</Text>
                 <FlatList
-                    data={filteredEspacios}
-                    renderItem={renderEspacio}
-                    keyExtractor={(espacio) => espacio.id ? espacio.id.toString() : Math.random().toString()}
+                    data={filteredInventarios}
+                    renderItem={renderRecurso}
+                    keyExtractor={(item, index) => index.toString()}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
-                    numColumns={2}
-                    columnWrapperStyle={{ justifyContent: 'space-between' }} 
                 />
             </View>
         </ImageBackground>
@@ -64,10 +70,17 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText: {
+        fontSize: 18,
+        color: 'red',
     },
     header: {
         marginTop: 50,
-        marginHorizontal: 20,
+        marginLeft: 30,
+        //marginRight: 30,
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -87,6 +100,8 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 3,
         flex: 1,
+        marginRight: 10,
+        maxWidth: '55%',
     },
     searchIcon: {
         marginRight: 10,
@@ -106,12 +121,14 @@ const styles = StyleSheet.create({
     containerData: {
         flex: 1,
         marginBottom: 80,
+        width: '100%',
     },
     listContent: {
         paddingBottom: 30,
         paddingHorizontal: 10,
+        
     },
-    espacioContainer: {
+    inventarioContainer: {
         flex: 1,
         alignItems: 'center',
         backgroundColor: 'white',
@@ -124,22 +141,44 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 3,
     },
-    espacioImagen: {
+    inventarioImagen: {
         width: 70,
         height: 70,
         borderRadius: 12,
     },
-    espacioNombre: {
+    inventarioFecha: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
         marginTop: 8,
     },
-    espacioDescripcion: {
+    inventarioCantidad: {
         fontSize: 14,
         color: '#757575',
         fontWeight: '500',
         marginTop: 4,
     },
+    recursoContainer: {
+        alignSelf: 'flex-start',
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+        padding: 10,
+        marginTop: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        elevation: 3,
+        width: '100%',
+    },
+    recursoTexto: {
+        fontSize: 20,
+        //color: '#333',
+        color: '#152567',
+        marginTop: 4,
+        fontWeight: '600',
+    },
+    recursoListContent: {
+        paddingBottom: 10,
+    },
 });
-

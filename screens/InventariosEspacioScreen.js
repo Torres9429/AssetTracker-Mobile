@@ -3,24 +3,24 @@ import { View, Text, StyleSheet, Image, TextInput, FlatList, ImageBackground, To
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-export default function EspaciosScreen() {
+export default function InventariosEspacioScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
     const route = useRoute();
-    const { edificio } = route.params;
+    const { espacio } = route.params;
 
-    const filteredEspacios = edificio.espacios.filter((espacio) =>
-        espacio.nombre.toLowerCase().includes(search.toLowerCase())
+    const filteredInventarios = espacio.inventarios.filter((inventario) =>
+        inventario.fecha.toLowerCase().includes(search.toLowerCase())
     );
     const handleCardPress = (item) => {
-        navigation.navigate('Inventarios', { espacio: item });
+        navigation.navigate('Recursos', { inventario: item.recursos });
       };
 
-    const renderEspacio = ({ item }) => (
-        <TouchableOpacity style={styles.espacioContainer} onPress={() => handleCardPress(item)}>
-            {item.imagen && <Image source={{ uri: item.imagen }} style={styles.espacioImagen} />}
-            <Text style={styles.espacioNombre}>{item.nombre}</Text>
-            <Text style={styles.espacioDescripcion}>{item.descripcion}</Text>
+    const renderInventario = ({ item }) => (
+        <TouchableOpacity style={styles.inventarioContainer} onPress={() => handleCardPress(item)}>
+            {item.imagen && <Image source={{ uri: item.imagen }} style={styles.inventarioImagen} />}
+            <Text style={styles.inventarioFecha}>{item.fecha}</Text>
+            <Text style={styles.inventarioCantidad}>Cantidad: {item.cantidad}</Text>
         </TouchableOpacity>
     );
 
@@ -35,7 +35,7 @@ export default function EspaciosScreen() {
                     <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
                     <TextInput
                         style={styles.searchBar}
-                        placeholder="Buscar espacio..."
+                        placeholder="Buscar inventario..."
                         placeholderTextColor="#999"
                         value={search}
                         onChangeText={setSearch}
@@ -43,12 +43,12 @@ export default function EspaciosScreen() {
                 </View>
             </View>
             <View style={styles.containerData}>
-                {/* Espacios */}
-                <Text style={styles.sectionTitle}>Espacios</Text>
+                {/* Inventarios */}
+                <Text style={styles.sectionTitle}>Inventarios</Text>
                 <FlatList
-                    data={filteredEspacios}
-                    renderItem={renderEspacio}
-                    keyExtractor={(espacio) => espacio.id ? espacio.id.toString() : Math.random().toString()}
+                    data={filteredInventarios}
+                    renderItem={renderInventario}
+                    keyExtractor={(inventario) => inventario.fecha}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     numColumns={2}
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
         paddingBottom: 30,
         paddingHorizontal: 10,
     },
-    espacioContainer: {
+    inventarioContainer: {
         flex: 1,
         alignItems: 'center',
         backgroundColor: 'white',
@@ -124,18 +124,18 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 3,
     },
-    espacioImagen: {
+    inventarioImagen: {
         width: 70,
         height: 70,
         borderRadius: 12,
     },
-    espacioNombre: {
+    inventarioFecha: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
         marginTop: 8,
     },
-    espacioDescripcion: {
+    inventarioCantidad: {
         fontSize: 14,
         color: '#757575',
         fontWeight: '500',
