@@ -4,6 +4,7 @@ import EdificiosScreen from '../screens/EdificiosScreen';
 import EspaciosScreen from '../screens/EspaciosScreen';
 import InventariosEspacioScreen from '../screens/InventariosEspacioScreen';
 import InventariosScreen from '../screens/InventariosScreen';
+import EscanearScreen from '../screens/EscanearScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,16 +31,6 @@ export default function InventariosStack() {
         component={InventariosScreen}
         options={{ headerShown: false }}
       />
-      {/*<Stack.Screen
-        name="DetallesRecurso"
-        component={DetallesRecursoScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="NuevoRecurso"
-        component={NuevoRecursoScreen}
-        options={{ headerShown: false }}
-      />*/}
     </Stack.Navigator>
   );
 }

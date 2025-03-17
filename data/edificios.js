@@ -87,7 +87,7 @@ const edificios = [
                 marca: 'Raquiez',
                 modelo: 'RE',
                 categoria: 'Butaca',
-                numSerie: 'S/N',
+                nSerie: 'S/N',
                 responsable: 'Martha Fabiola Wences',
                 observaciones: 'Tiene el respaldo rasgado',
                 ubicacion: {
@@ -203,7 +203,7 @@ const edificios = [
                 id: 1,
                 nombre: 'Silla',
                 codigo: '5101LC-04-089',
-                image: require('../assets/imageSilla.png'),
+                imagenTipo: require('../assets/imageSilla.png'),
                 marca: 'Raquiez',
                 modelo: 'RE',
                 categoria: 'Butaca',

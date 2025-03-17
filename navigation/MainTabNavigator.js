@@ -1,81 +1,90 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import EdificiosScreen from '../screens/EdificiosScreen';
 import { Ionicons } from '@expo/vector-icons';
-import HomeScreen from '../screens/HomeScreen';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import InventariosStack from './InventariosStack';
+import Scanner from '../scanner/Scanner';
+import PerfilScreen from '../screens/PerfilScreen';
 
 const Tab = createBottomTabNavigator();
+const { width, height } = Dimensions.get("window")
 
 export default function MainTabNavigator() {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === 'Main') {
-            iconName = 'home';
-          } else if (route.name === 'Escaner') {
-            iconName = 'barcode-outline';
-          } else if (route.name === 'Perfil') {
-            iconName = 'person-circle-outline';
-          }
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#fff',
-        tabBarInactiveTintColor: '#999',
-        tabBarLabelStyle: { display: 'none' }, // Oculta el nombre del tab por defecto
-        tabBarStyle: {
-          position: 'absolute',
-          //bottom: 20, // Elevar el tabBar
-          //left: 20,
-          //right: 20,
-          //backgroundColor: '#152567',
-          backgroundColor: 'white',
-          height: 70,
-          //borderRadius: 30, // Bordes redondeados
-          borderTopWidth: 1,
-          elevation: 5, // Sombra en Android
-          shadowColor: '#000', // Sombra en iOS
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 4,
-          padding: 5,
-        },
-      })}
-    >
-      
-      <Tab.Screen 
-        name="Main" 
-        component={InventariosStack} 
-        options={{
-          headerShown: false, 
-          title: 'Edificios',
-          tabBarButton: (props) => <CustomTabButton {...props} label="Edificios" />,
-        }} 
-      />
-      <Tab.Screen 
-        name="Escaner" 
-        component={HomeScreen} 
-        options={{
-          headerShown: false, 
-          title: 'Escaner',
-          tabBarButton: (props) => <CustomTabButton {...props} label="Escaner" />,
-        }} 
-      />
-      <Tab.Screen 
-        name="Perfil" 
-        component={EdificiosScreen} 
-        options={{
-          headerShown: false, 
-          title: 'Edificios',
-          tabBarButton: (props) => <CustomTabButton {...props} label="Perfil" />,
-        }} 
-      />
-      
-      
-    </Tab.Navigator>
+    <View style={{
+      width,
+      height,
+    }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined} // Solo aplica "padding" en iOS
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} // Ajusta este valor si es necesario
+      >
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              if (route.name === 'Home') {
+                return <Ionicons name="home" size={size} color={color} />;
+              } else if (route.name === 'Escaner') {
+                return <MaterialCommunityIcons name="barcode-scan" size={size} color={color} />;
+              } else if (route.name === 'Perfil') {
+                return <Ionicons name="person-circle-outline" size={size} color={color} />;
+              }
+            },
+            tabBarActiveTintColor: '#fff',
+            tabBarInactiveTintColor: '#999',
+            animation: 'shift',
+            adaptive: true,
+            
+            tabBarLabelStyle: { display: 'none' }, // Oculta el nombre del tab por defecto
+            tabBarStyle: {
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: 'white',
+              height: 70,
+              borderTopWidth: 1,
+              elevation: 5, // Sombra en Android
+              shadowColor: '#000', // Sombra en iOS
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+              padding: 5,
+            },
+          })}
+        >
+          <Tab.Screen
+            name="Home"
+            component={InventariosStack}
+            options={{
+              headerShown: false,
+              title: 'Edificios',
+              tabBarButton: (props) => <CustomTabButton {...props} label="Edificios" />,
+            }}
+          />
+          <Tab.Screen
+            name="Escaner"
+            component={Scanner}
+            options={{
+              headerShown: false,
+              title: 'Escaner',
+              tabBarButton: (props) => <CustomTabButton {...props} label="Escaner" />,
+            }}
+          />
+          <Tab.Screen
+            name="Perfil"
+            component={PerfilScreen}
+            options={{
+              headerShown: false,
+              title: 'Perfil',
+              tabBarButton: (props) => <CustomTabButton {...props} label="Perfil" />,
+            }}
+          />
+        </Tab.Navigator>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
