@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, FlatList, ImageBackground, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, FlatList, ImageBackground, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import CustomModal from '../components/Modal';
 
 export default function InventariosScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
     const route = useRoute();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedRecurso, setSelectedRecurso] = useState(null);
     const { inventario } = route.params;
 
     // Verifica que inventarios sea un array
@@ -22,10 +25,15 @@ export default function InventariosScreen() {
         recurso.nombre && recurso.nombre.toLowerCase().includes(search.toLowerCase())
     );
 
+    const handleShowRecurso = (recurso) => {
+        setSelectedRecurso(recurso);
+        setModalVisible(true);
+    };
+
     const renderRecurso = ({ item }) => (
-        <View style={styles.recursoContainer}>
+        <TouchableOpacity style={styles.recursoContainer} onPress={() => handleShowRecurso(item)}>
             <Text style={styles.recursoTexto}>{item.codigo} - {item.nombre}</Text>
-        </View>
+        </TouchableOpacity>
     );
 
     return (
@@ -45,7 +53,7 @@ export default function InventariosScreen() {
                         onChangeText={setSearch}
                     />
                 </View>
-                <TouchableOpacity style={{backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25}} onPress={() => navigation.goBack()}>
+                <TouchableOpacity style={{backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25}} onPress={() => navigation.navigate('Agregar')}>
                     <Ionicons name="add" size={20} color="white" />
                     <Text style={{ color: 'white', fontSize: 16,  }}>Nuevo</Text>
                 </TouchableOpacity>
@@ -61,6 +69,12 @@ export default function InventariosScreen() {
                     showsVerticalScrollIndicator={false}
                 />
             </View>
+            <CustomModal
+                modalVisible={modalVisible}
+                recurso={selectedRecurso}
+                setModalVisible={setModalVisible}
+                setRecurso={setSelectedRecurso}
+            />
         </ImageBackground>
     );
 }
@@ -183,4 +197,5 @@ const styles = StyleSheet.create({
     recursoListContent: {
         paddingBottom: 10,
     },
+    
 });

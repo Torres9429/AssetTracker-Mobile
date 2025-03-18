@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import MathBackground from '../components/MathBackground';
 
 export default function PerfilScreen() {
   return (

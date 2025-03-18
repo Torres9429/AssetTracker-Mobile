@@ -112,14 +112,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 40,
   },
   buttonTextSelectedSignIn: {
-    color: "#6875E0",
+    color: "#416FDF",
   },
   buttonSelectedSignUp: {
     backgroundColor: "white",
     borderTopLeftRadius: 40,
   },
   buttonTextSelectedSignUp: {
-    color: "#6875E0",
+    color: "#416FDF",
   },
 });
 

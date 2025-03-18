@@ -15,12 +15,9 @@ export default function MainTabNavigator() {
     <View style={{
       width,
       height,
+      margin: 0
     }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined} // Solo aplica "padding" en iOS
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} // Ajusta este valor si es necesario
-      >
+      
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
@@ -36,8 +33,7 @@ export default function MainTabNavigator() {
             tabBarInactiveTintColor: '#999',
             animation: 'shift',
             adaptive: true,
-            
-            tabBarLabelStyle: { display: 'none' }, // Oculta el nombre del tab por defecto
+            tabBarLabelStyle: { display: 'none' }, //Oculta el nombre por defecto
             tabBarStyle: {
               position: 'absolute',
               bottom: 0,
@@ -46,11 +42,11 @@ export default function MainTabNavigator() {
               backgroundColor: 'white',
               height: 70,
               borderTopWidth: 1,
-              elevation: 5, // Sombra en Android
+              /*elevation: 5, // Sombra en Android
               shadowColor: '#000', // Sombra en iOS
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.3,
-              shadowRadius: 4,
+              shadowRadius: 4,*/
               padding: 5,
             },
           })}
@@ -83,12 +79,11 @@ export default function MainTabNavigator() {
             }}
           />
         </Tab.Navigator>
-      </KeyboardAvoidingView>
     </View>
   );
 }
 
-// Componente personalizado para los botones del TabBar
+// Botones del TabBar
 const CustomTabButton = ({ accessibilityState, children, onPress, label }) => {
   const isSelected = accessibilityState.selected;
 

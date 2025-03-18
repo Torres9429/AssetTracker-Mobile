@@ -1,13 +1,17 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Modal, TextInput, Alert, Image, KeyboardAvoidingView, 
-  ScrollView, 
-  Platform, 
-  Keyboard, 
-  TouchableWithoutFeedback  } from "react-native";
+import {
+  StyleSheet, Text, TouchableOpacity, View, Modal, TextInput, Alert, Image, KeyboardAvoidingView,
+  ScrollView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback, ImageBackground
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import edificios from '../data/edificios';
+import CustomModal from "../components/Modal";
+import ScannerCamera from "../components/ScannerCamera";
 
 export default function Scanner() {
   const [scanned, setScanned] = useState(false);
@@ -42,19 +46,28 @@ export default function Scanner() {
         }
       }
     }
-    return null;
+    return null; // Solo devolver null si no se encontró en toda la estructura
   };
-
+  
   function handleBarCodeScanned({ type, data }) {
     if (!scanned) {
       setScanned(true);
-      setModalVisible(true);
+      
+      const recursoEncontrado = buscarRecurso(data);
+      setRecurso(recursoEncontrado); // Guardar el recurso (si se encontró o null)
+  
+      if (recursoEncontrado) {
+        setModalVisible(true); // Solo abrir el modal si el recurso fue encontrado
+      } else {
+        Alert.alert("Recurso no encontrado", "No se encontró ningún recurso con ese código.");
+      }
+  
       setTimeout(() => {
         setScanned(false);
-        setModalVisible(false);
       }, 3000);
     }
   }
+  
 
   const handleIngresarCodigo = () => {
     const recursoEncontrado = buscarRecurso(code);
@@ -64,12 +77,6 @@ export default function Scanner() {
     } else {
       Alert.alert('Recurso no encontrado', 'No se encontró ningún recurso con ese código.');
     }
-  };
-  const getImageSource = (image) => {
-    if (typeof image === 'string') {
-      return { uri: image };
-    }
-    return image;
   };
 
   return (
@@ -82,42 +89,48 @@ export default function Scanner() {
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
-        <View style={styles.container}>
-          <CameraView
+          <View style={styles.container}>
+            {/*<CameraView
             style={styles.camera}
             barcodeScannerSettings={{
               barcodeTypes: ['qr', 'ean13', 'code128', 'upc_a'],
             }}
             onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
           >
-            {/* Overlay Oscuro */}
+            {/* Overlay Oscuro }
             <View style={styles.overlay}>
               <View style={styles.scanBox}>
-                {/* Esquinas del cuadro */}
+                {/* Esquinas del cuadro }
                 <View style={[styles.corner, styles.topLeft]} />
                 <View style={[styles.corner, styles.topRight]} />
                 <View style={[styles.corner, styles.bottomLeft]} />
                 <View style={[styles.corner, styles.bottomRight]} />
               </View>
             </View>
-          </CameraView>
-
-          {/* Botón de acción */}
-          <View style={styles.inputContainer}>
-            <MaterialCommunityIcons name="barcode" size={24} color="#555" style={styles.icon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Ingrese el código"
-              placeholderTextColor="#777"
-              value={code}
-              onChangeText={setCode}
+          </CameraView>*/}
+            <ScannerCamera
+              scanned={scanned}
+              handleBarCodeScanned={handleBarCodeScanned}
+              handleRecursoEncontrado={setRecurso} // Actualiza el estado en Scanner
+              edificios={edificios}
             />
-          </View>
-          <TouchableOpacity style={styles.actionButton} onPress={handleIngresarCodigo}>
-            <Text style={styles.actionButtonText}>→</Text>
-          </TouchableOpacity>
 
-          {/* Modal para información */}
+            {/* Botón de acción */}
+            <View style={styles.inputContainer}>
+              <MaterialCommunityIcons name="barcode" size={24} color="#555" style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Ingrese el código"
+                placeholderTextColor="#777"
+                value={code}
+                onChangeText={setCode}
+              />
+            </View>
+            <TouchableOpacity style={styles.actionButton} onPress={handleIngresarCodigo}>
+              <Text style={styles.actionButtonText}>→</Text>
+            </TouchableOpacity>
+
+            {/* Modal para información 
           <Modal visible={modalVisible} transparent animationType="slide">
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
@@ -137,14 +150,19 @@ export default function Scanner() {
                 <TouchableOpacity style={styles.closeButton} onPress={() => (setModalVisible(false), setRecurso(null))}>
                   <MaterialCommunityIcons name="close-circle" size={34} color="white" style={styles.closeButtonText} />
                 </TouchableOpacity>
+                
               </View>
             </View>
-          </Modal>
-        </View>
-
-      </ScrollView>
-    </TouchableWithoutFeedback>
-  </KeyboardAvoidingView >
+          </Modal>*/}
+            {/**/<CustomModal
+              modalVisible={modalVisible}
+              recurso={recurso}
+              setModalVisible={setModalVisible}
+            />}
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView >
   );
 }
 
@@ -167,7 +185,7 @@ const styles = StyleSheet.create({
     position: "relative",
     backgroundColor: "transparent", // Totalmente transparente
     borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0)", // Borde ligero
+    borderColor: "rgba(255, 255, 255, 0)",
   },
   corner: {
     position: "absolute",
@@ -249,12 +267,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
   },
+  modalBackground: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    resizeMode: "cover",
+  },
   modalContent: {
     width: '100%',
     height: '60%',
     backgroundColor: "#152567",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     padding: 40,
     alignItems: "flex-start",
   },
