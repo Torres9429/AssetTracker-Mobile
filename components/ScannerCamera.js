@@ -34,8 +34,8 @@ export default function ScannerCamera({ scanned, handleBarCodeScanned, handleRec
   
       function handleScan({ type, data }) {
         if (!scanned && data) { // Solo ejecuta si data no es undefined
-          setCodigoEscaneado(data);
-          handleBarCodeScanned({ type, data });
+          //setCodigoEscaneado(data);
+          handleBarCodeScanned({ type, data });         
         }
       }
       

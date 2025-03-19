@@ -14,7 +14,7 @@ export default function MainTabNavigator() {
   return (
     <View style={{
       width,
-      height,
+      height:"100%",
       margin: 0
     }}>
       
@@ -32,7 +32,6 @@ export default function MainTabNavigator() {
             tabBarActiveTintColor: '#fff',
             tabBarInactiveTintColor: '#999',
             animation: 'shift',
-            adaptive: true,
             tabBarLabelStyle: { display: 'none' }, //Oculta el nombre por defecto
             tabBarStyle: {
               position: 'absolute',

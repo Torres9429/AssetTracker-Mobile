@@ -94,11 +94,8 @@ const styles = StyleSheet.create({
     },
     header: {
         marginTop: 50,
-        marginLeft: 30,
-        marginRight: 30,
         flexDirection: 'row',
         alignItems: 'center',
-        alignContent: 'space-between',
     },
     backButton: {
         marginRight: 10,

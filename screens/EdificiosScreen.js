@@ -102,7 +102,6 @@ const styles = StyleSheet.create({
     },
     containerData: {
         flex: 1,
-        marginBottom: 80,
     },
     listContent: {
         paddingBottom: 30,
