@@ -7,6 +7,8 @@ import MainTabNavigator from './MainTabNavigator'; // Importa tu Tab Navigator p
 import RecuperacionContrasenaScreen from '../screens/RecuperacionContrasenaScreen';
 import CambioContrasenaScreen from '../screens/CambioContrasenaScreen';
 import CodigoRecuperacionScreen from '../screens/CodigoRecuperacionScreen';
+import EdicionPerfilScreen from '../screens/EdicionPerfilScreen';
+import CambiarContrasenaScreen from '../screens/CambiarContrasenaScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +22,8 @@ export default function StackNavigator() {
       <Stack.Screen name="CodigoRecuperacion" component={CodigoRecuperacionScreen} />
       <Stack.Screen name="CambioContrasena" component={CambioContrasenaScreen} />
       <Stack.Screen name="Main" component={MainTabNavigator} />
+      <Stack.Screen name="EdicionPerfilScreen" component={EdicionPerfilScreen}/>
+      <Stack.Screen name="CambiarContrasenaScreen" component={CambiarContrasenaScreen}/>
     </Stack.Navigator>
   );
 }

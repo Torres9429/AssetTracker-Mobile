@@ -6,6 +6,7 @@ import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, Dimension
 import InventariosStack from './InventariosStack';
 import Scanner from '../scanner/Scanner';
 import PerfilScreen from '../screens/PerfilScreen';
+import EscanearScreen from '../screens/EscanearScreen';
 
 const Tab = createBottomTabNavigator();
 const { width, height } = Dimensions.get("window")
@@ -41,11 +42,6 @@ export default function MainTabNavigator() {
               backgroundColor: 'white',
               height: 70,
               borderTopWidth: 1,
-              /*elevation: 5, // Sombra en Android
-              shadowColor: '#000', // Sombra en iOS
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 4,*/
               padding: 5,
             },
           })}
@@ -61,7 +57,7 @@ export default function MainTabNavigator() {
           />
           <Tab.Screen
             name="Escaner"
-            component={Scanner}
+            component={EscanearScreen}
             options={{
               headerShown: false,
               title: 'Escaner',
