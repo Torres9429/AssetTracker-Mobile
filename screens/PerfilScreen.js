@@ -1,15 +1,66 @@
-import React from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
+import { getUsuario } from '../api/usuariosApi';
 
 export default function PerfilScreen() {
   const navigation = useNavigation();
-  const usuario = {
+  const [usuario, setUsuario] = useState(null);
+  const [loading, setLoading] = useState(true); 
+
+  useEffect(() => {
+    const fetchUsuario = async () => {
+      try {
+        const id = localStorage.getItem("id");
+        if (!id) {
+          console.error("No se encontró el ID del usuario");
+          return;
+        }
+
+        const response = await getUsuario(id); 
+        setUsuario(response.data.result); // Almacena los datos del usuario en el estado
+        console.log("Datos del usuario:", response.data);
+      } catch (error) {
+        console.error("Error al obtener los datos del usuario:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsuario();
+  }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Text style={styles.loadingText}>Cargando...</Text>
+      </SafeAreaView>
+    );
+  }
+  
+  if (!usuario) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Text style={styles.errorText}>No se pudieron cargar los datos del usuario.</Text>
+      </SafeAreaView>
+    );
+  }
+  const usuario1 = {
     nombre: 'Carlos Jair',
     apellidos: 'Rodríguez Coronel',
     tipoUsuario: 'Administrador',
     correo: 'carlosrodriguez@utez.edu.mx',
+  };
+  const handleLogout = () => {
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("expiration");
+    navigation.navigate('Welcome');
+    window.location.reload();
+
   };
 
   return (
@@ -24,7 +75,7 @@ export default function PerfilScreen() {
         <View style={styles.infoContainer}>
           <View style={[styles.infoBox, styles.universityBox]}>
             <Text style={styles.infoLabel}>Tipo de usuario</Text>
-            <Text style={styles.infoValue}>{usuario.tipoUsuario}</Text>
+            <Text style={styles.infoValue}>{usuario.nombre}</Text> {/* Aquí va el tipo de usuario ( PENDIENTE ) */}
           </View>
         </View>
         <View style={styles.menuContainer}>
@@ -36,7 +87,7 @@ export default function PerfilScreen() {
             <Ionicons name="lock-closed-outline" size={24} color="#416FDF" />
             <Text style={styles.menuText}>Cambiar Contraseña</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.menuItem]} onPress={() => navigation.navigate('Welcome')}>
+          <TouchableOpacity style={[styles.menuItem]} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={24} color="red" />
             <Text style={styles.menuText}>Cerrar Sesión</Text>
           </TouchableOpacity>

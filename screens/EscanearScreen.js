@@ -1,5 +1,5 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   StyleSheet, Text, TouchableOpacity, View, Modal, TextInput, Alert, Image, KeyboardAvoidingView,
   ScrollView,
@@ -7,7 +7,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback, ImageBackground
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import edificios from '../data/edificios';
 import CustomModal from "../components/Modal";

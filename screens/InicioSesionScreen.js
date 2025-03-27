@@ -1,19 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { AuthContext } from '../context/AuthContext';
 
 const InicioSesionScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
+  const { handleLogin } = useContext(AuthContext);
+  /*const handleLogin = () => {
     if (email === '2' && password === '1') {
       navigation.navigate('Main');
     } else {
       alert('Correo o contraseña incorrectos');
     }
+  };*/
+  const handleCorreoChange = (e) => {
+    setEmail(e.target.value);
   };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
+  const onSubmit = () => {
+    handleLogin(email, password); // Asegúrate de pasar los valores, no el evento
+    
+  };
+  /*const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Formulario enviado con:", { email, password });
+    await handleLogin(email, password);
+    const token = localStorage.getItem("jwt");
+    if (token) {
+      navigation.navigate('Main'); // Redirige solo si hay token
+    } else {
+      alert("Correo o contraseña incorrectos");
+    }
+  };*/
 
   return (
     <ImageBackground
@@ -53,7 +78,7 @@ const InicioSesionScreen = ({ navigation }) => {
                 <Ionicons name={showPassword ? "eye" : "eye-off"} size={24} color="#aaa" style={styles.icon} />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <TouchableOpacity style={styles.button} onPress={onSubmit}>
               <Text style={styles.buttonText}>Entrar</Text>
             </TouchableOpacity>
             <Text style={styles.signUpText}>

@@ -173,7 +173,8 @@ const styles = StyleSheet.create({
     },
     recursoContainer: {
         alignSelf: 'flex-start',
-        backgroundColor: '#f5f5f5',
+        //backgroundColor: '#f5f5f5',
+        backgroundColor: 'rgba(10, 27, 122, 0.63)',
         borderRadius: 8,
         padding: 10,
         marginTop: 10,
@@ -186,8 +187,8 @@ const styles = StyleSheet.create({
     },
     recursoTexto: {
         fontSize: 20,
-        //color: '#333',
-        color: '#152567',
+        color: '#fff',
+        //color: '#152567',
         marginTop: 4,
         fontWeight: '600',
     },
