@@ -9,6 +9,9 @@ import CambioContrasenaScreen from '../screens/CambioContrasenaScreen';
 import CodigoRecuperacionScreen from '../screens/CodigoRecuperacionScreen';
 import EdicionPerfilScreen from '../screens/EdicionPerfilScreen';
 import CambiarContrasenaScreen from '../screens/CambiarContrasenaScreen';
+import PerfilScreen from '../screens/PerfilScreen';
+import EscanearScreen from '../screens/EscanearScreen';
+import CameraComponent from '../components/Camera';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +26,10 @@ export default function StackNavigator() {
       <Stack.Screen name="CambioContrasena" component={CambioContrasenaScreen} />
       <Stack.Screen name="Main" component={MainTabNavigator} />
       <Stack.Screen name="EdicionPerfilScreen" component={EdicionPerfilScreen}/>
+      <Stack.Screen name="Perfil" component={PerfilScreen}/>
       <Stack.Screen name="CambiarContrasenaScreen" component={CambiarContrasenaScreen}/>
+      <Stack.Screen name="Escanear" component={EscanearScreen} options={{ unmountOnBlur: true }}/>
+      <Stack.Screen name="CameraScreen" component={CameraComponent}/>
     </Stack.Navigator>
   );
 }

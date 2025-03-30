@@ -7,7 +7,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback, ImageBackground
 } from "react-native";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused, useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import edificios from '../data/edificios';
 import CustomModal from "../components/Modal";
@@ -20,15 +20,24 @@ export default function EscanearScreen() {
   const [code, setCode] = useState('');
   const [recurso, setRecurso] = useState(null);
   const navigation = useNavigation();
+  const [key, setKey] = React.useState(0);
+  const isFocused = useIsFocused(); // Hook para verificar si la pantalla está enfocada
+
+const reiniciarComponente = () => setKey(prevKey => prevKey + 1);
 
   //Reiniciar componentes para evitar fallas
   useFocusEffect(
     useCallback(() => {
-      // Reiniciar el estado cuando la pantalla está enfocada
-      setScanned(false);
+      console.log("Pantalla enfocada, reiniciando scanner...");
+      setScanned(false); // Restablece el estado del escáner
       setModalVisible(false);
       setCode('');
       setRecurso(null);
+      
+      return () => {
+        console.log("Pantalla desenfocada, limpiando scanner...");
+        setScanned(false); // Opcional: asegurarse de que se limpie
+      };
     }, [])
   );
 
@@ -100,13 +109,14 @@ export default function EscanearScreen() {
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.container}>
+          <View style={styles.container} key={key}>
             {/* Componente del scanner|cámara */}
            <ScannerCamera
               scanned={scanned}
               handleBarCodeScanned={handleBarCodeScanned}
               handleRecursoEncontrado={setRecurso} // Actualiza el estado en Scanner
               edificios={edificios}
+              key={key}
             />
 
             {/* Botón de acción */}

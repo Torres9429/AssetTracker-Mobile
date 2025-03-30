@@ -35,7 +35,7 @@ export default function InventariosStack() {
       <Stack.Screen
         name="Agregar"
         component={AgregarRecursoScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, unmountOnBlur: true }}
       />
     </Stack.Navigator>
   );

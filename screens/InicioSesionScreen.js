@@ -24,21 +24,15 @@ const InicioSesionScreen = ({ navigation }) => {
     setPassword(e.target.value);
   };
 
-  const onSubmit = () => {
+  /*const onSubmit = () => {
     handleLogin(email, password); // Asegúrate de pasar los valores, no el evento
     
-  };
-  /*const handleSubmit = async (e) => {
+  };*/
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Formulario enviado con:", { email, password });
     await handleLogin(email, password);
-    const token = localStorage.getItem("jwt");
-    if (token) {
-      navigation.navigate('Main'); // Redirige solo si hay token
-    } else {
-      alert("Correo o contraseña incorrectos");
-    }
-  };*/
+  };
 
   return (
     <ImageBackground
@@ -78,7 +72,7 @@ const InicioSesionScreen = ({ navigation }) => {
                 <Ionicons name={showPassword ? "eye" : "eye-off"} size={24} color="#aaa" style={styles.icon} />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.button} onPress={onSubmit}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>Entrar</Text>
             </TouchableOpacity>
             <Text style={styles.signUpText}>

@@ -1,5 +1,6 @@
 // api.js
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_BASE_URL = "https://3a76hppbug.execute-api.us-east-1.amazonaws.com/";
 // Usar el URL de desarrollo local (si corresponde)
@@ -11,11 +12,15 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("jwt");
+  async (config) => {
+    const token = await AsyncStorage.getItem("jwt");
+    console.log("Token desde AsyncStorage:", token);
+    ("Token desde AsyncStorage:", token);
     // console.log("Token en el request interceptor:", token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log("Token agregado a la solicitud:", token);
+      
     }
     return config;
   },

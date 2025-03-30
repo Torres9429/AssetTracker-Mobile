@@ -1,52 +1,59 @@
 import { createContext, useState } from "react";
 import { login as loginApi } from "../api/auth.api";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [error, setError] = useState(null); 
+  const [error, setError] = useState(null);
   const navigation = useNavigation();
 
   const handleLogin = async (correo, password) => {
     try {
-      // Realizar la petición a la API
       const response = await loginApi({ correo, password });
 
       if (response.status === 200) {
-        // Extraer datos de la respuesta
-        const { jwt, username, expiration, userId } = response.data;
+        const { jwt, username, role, userId, expiration } = response.data;
 
-        // Guardar el JWT y otros datos en localStorage
-        localStorage.setItem("jwt", jwt);
-        localStorage.setItem("user", JSON.stringify({ username }));
-        localStorage.setItem("id", userId);
-        localStorage.setItem("expiration", Date.now() + expiration); // Guardar el tiempo de expiración
+        // Guardar datos en AsyncStorage
+        await AsyncStorage.multiSet([
+          ['jwt', jwt],
+          ['userId', userId.toString()]
+        ]);
+        
+        console.log('Login exitoso, token guardado:', jwt);
+        //const jwtString = JSON.stringify(jwt);  // Asegúrate de que el JWT se guarda como una cadena
+        //await AsyncStorage.setItem("jwt", jwtString);
+        await AsyncStorage.setItem("user", JSON.stringify({ username, role }));
+        await AsyncStorage.setItem("userId", String(userId));
+        await AsyncStorage.setItem("expiration", String(Date.now() + expiration));
 
-        // Actualizar el estado del usuario
-        setUser({ username });
-        setError(null); // Limpiar errores
-        navigation.navigate("Main"); // Redirigir a la pantalla principal
+        // Actualizar estado
+        setUser({ username, role });
+        setError(null);
+
+        // Navegar a la pantalla principal
+        navigation.navigate("Main");
       } else {
-        // Manejar errores de autenticación
         setError("Credenciales incorrectas");
         setUser(null);
       }
     } catch (err) {
       console.error("Error en la conexión:", err);
       setError("Error en la conexión con el servidor");
-      setUser(null);
-      alert("Contraseña o correo incorrectos");
     }
   };
 
-  const logout = () => {
-    // Limpiar el estado y el localStorage al cerrar sesión
+  const logout = async () => {
     setUser(null);
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("user");
-    localStorage.removeItem("expiration");
+    /*await AsyncStorage.removeItem("jwt");
+    await AsyncStorage.removeItem("user");
+    await AsyncStorage.removeItem("userId");
+    await AsyncStorage.removeItem("expiration");*/
+    await AsyncStorage.clear();
+    navigation.navigate("Welcome");
   };
 
   return (

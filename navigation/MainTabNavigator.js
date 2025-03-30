@@ -2,23 +2,18 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, Dimensions, StyleSheet, ScrollView } from 'react-native';
 import InventariosStack from './InventariosStack';
 import Scanner from '../scanner/Scanner';
 import PerfilScreen from '../screens/PerfilScreen';
 import EscanearScreen from '../screens/EscanearScreen';
 
 const Tab = createBottomTabNavigator();
-const { width, height } = Dimensions.get("window")
+const { width, height } = Dimensions.get("window");
 
 export default function MainTabNavigator() {
   return (
-    <View style={{
-      width,
-      height:"100%",
-      margin: 0
-    }}>
-      
+    <View style={{ width, height, flexGrow: 1 }}>
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
@@ -33,7 +28,8 @@ export default function MainTabNavigator() {
             tabBarActiveTintColor: '#fff',
             tabBarInactiveTintColor: '#999',
             animation: 'shift',
-            tabBarLabelStyle: { display: 'none' }, //Oculta el nombre por defecto
+            //tabBarHideOnKeyboard: true,
+            tabBarLabelStyle: { display: 'none' }, // Hide default tab label
             tabBarStyle: {
               position: 'absolute',
               bottom: 0,
@@ -43,6 +39,8 @@ export default function MainTabNavigator() {
               height: 70,
               borderTopWidth: 1,
               padding: 5,
+              paddingBottom: Platform.OS === 'ios' ? 20 : 5,
+              zIndex: 10, // Ensure tab bar stays on top
             },
           })}
         >
@@ -78,7 +76,7 @@ export default function MainTabNavigator() {
   );
 }
 
-// Botones del TabBar
+// Custom button for tab bar
 const CustomTabButton = ({ accessibilityState, children, onPress, label }) => {
   const isSelected = accessibilityState.selected;
 

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ImageBackground, TouchableOpacity, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ScannerCamera from '../components/ScannerCamera';
 
 export default function AgregarRecursoScreen() {
@@ -10,6 +10,21 @@ export default function AgregarRecursoScreen() {
     const [scanned, setScanned] = useState(false);
     const [code, setCode] = useState('');
     const navigation = useNavigation();
+    const [key, setKey] = useState(0);
+    useFocusEffect(
+        useCallback(() => {
+            console.log("Pantalla enfocada, reiniciando scanner...");
+            setScanned(false); // Reactivar el escáner
+            setCode('');
+
+            return () => {
+                console.log("Pantalla desenfocada, limpiando scanner...");
+                setScanned(false); // Limpia el estado solo si la pantalla cambia
+            };
+        }, [])
+    );
+
+
 
     const handleBarCodeScanned = (event) => {
         if (!event || !event.data) {
@@ -19,8 +34,8 @@ export default function AgregarRecursoScreen() {
         setScanned(true);
         setCode(event.data);
     };
-    
-    
+
+
 
     return (
         <ImageBackground source={require('../assets/backgroundSecondary.png')} style={styles.container} resizeMode='cover'>
@@ -38,11 +53,14 @@ export default function AgregarRecursoScreen() {
                     <View style={styles.form}>
                         <Text style={styles.scanText}>Escanear código</Text>
                         <View style={styles.card}>
-                            <ScannerCamera
-                                scanned={scanned}
-                                handleBarCodeScanned={handleBarCodeScanned}
-                                continuousScan={true}
-                            />
+                            {!scanned && (
+                                <ScannerCamera
+                                    key={scanned ? 'scanned' : 'not-scanned'}
+                                    scanned={scanned}
+                                    handleBarCodeScanned={handleBarCodeScanned}
+                                    continuousScan={true}
+                                />
+                            )}
                         </View>
                         <Text style={styles.textInput}>Código</Text>
                         <TextInput

@@ -1,36 +1,52 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import { getUsuario } from '../api/usuariosApi';
+import { logout } from '../api/auth.api';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function PerfilScreen() {
   const navigation = useNavigation();
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true); 
+  const isFocused = useIsFocused(); // Hook para verificar si la pantalla está enfocada
 
   useEffect(() => {
     const fetchUsuario = async () => {
       try {
-        const id = localStorage.getItem("id");
-        if (!id) {
+        const idString = await AsyncStorage.getItem("userId");
+        if (!idString) {
           console.error("No se encontró el ID del usuario");
           return;
         }
-
-        const response = await getUsuario(id); 
-        setUsuario(response.data.result); // Almacena los datos del usuario en el estado
+  
+        const id = parseInt(idString, 10);
+        if (isNaN(id)) {
+          console.error("El ID del usuario no es un número válido");
+          return;
+        }
+  
+        const response = await getUsuario(id);
         console.log("Datos del usuario:", response.data);
+  
+        if (response) {
+          setUsuario(response.data.result[0]); // Guardar solo el primer objeto
+        } else {
+          console.error("No se encontraron datos de usuario.");
+        }
       } catch (error) {
         console.error("Error al obtener los datos del usuario:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchUsuario();
-  }, []);
+  }, [isFocused]); // Dependencia para recargar los datos al volver a la pantalla
+  
+  const { logout } = useContext(AuthContext);
 
   if (loading) {
     return (
@@ -53,15 +69,6 @@ export default function PerfilScreen() {
     tipoUsuario: 'Administrador',
     correo: 'carlosrodriguez@utez.edu.mx',
   };
-  const handleLogout = () => {
-
-    localStorage.removeItem("user");
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("expiration");
-    navigation.navigate('Welcome');
-    window.location.reload();
-
-  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -75,7 +82,7 @@ export default function PerfilScreen() {
         <View style={styles.infoContainer}>
           <View style={[styles.infoBox, styles.universityBox]}>
             <Text style={styles.infoLabel}>Tipo de usuario</Text>
-            <Text style={styles.infoValue}>{usuario.nombre}</Text> {/* Aquí va el tipo de usuario ( PENDIENTE ) */}
+            <Text style={styles.infoValue}>{usuario.rol  === "ROLE_ADMIN_ACCESS" ? "Administrador" : "Inspector"}</Text> {/* Aquí va el tipo de usuario ( PENDIENTE ) */}
           </View>
         </View>
         <View style={styles.menuContainer}>
@@ -87,7 +94,7 @@ export default function PerfilScreen() {
             <Ionicons name="lock-closed-outline" size={24} color="#416FDF" />
             <Text style={styles.menuText}>Cambiar Contraseña</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.menuItem]} onPress={handleLogout}>
+          <TouchableOpacity style={[styles.menuItem]} onPress={logout}>
             <Ionicons name="log-out-outline" size={24} color="red" />
             <Text style={styles.menuText}>Cerrar Sesión</Text>
           </TouchableOpacity>
@@ -171,7 +178,6 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 20,
     padding: 10,
-    elevation: 5,
     marginTop: 20,
   },
   menuItem: {

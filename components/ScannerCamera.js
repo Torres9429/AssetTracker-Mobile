@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function ScannerCamera({ scanned, handleBarCodeScanned, handleRecursoEncontrado, edificios }) {
     const [codigoEscaneado, setCodigoEscaneado] = useState(null);
+    /*useEffect(() => {
+      return () => {
+        cameraRef?.current?.pausePreview?.(); // Asegura que se detenga
+      };
+    }, []);*/
   
     // Función para buscar el recurso en la lista de edificios
     const buscarRecurso = (codigo) => {

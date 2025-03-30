@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { updateUsuario } from '../api/usuariosApi';
 
 export default function EdicionPerfilScreen({ route }) {
     const { usuario } = route.params;
@@ -10,9 +11,15 @@ export default function EdicionPerfilScreen({ route }) {
 
     const navigation = useNavigation();
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        const updatedData = { id: usuario.id,  
+            nombre, 
+            apellidos, 
+            correo: usuario.correo,};
+        await updateUsuario(updatedData);
         console.log('Datos guardados:', { nombre, apellidos });
-        navigation.goBack();
+        navigation.goBack(); // Regresar a la pantalla anterior
+        //navigation.navigate('Perfil');
     };
 
     return (

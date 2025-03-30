@@ -57,6 +57,9 @@ export default function InventariosScreen() {
                     <Ionicons name="add" size={20} color="white" />
                     <Text style={{ color: 'white', fontSize: 16,  }}>Nuevo</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={{backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25}} onPress={() => navigation.navigate('CameraScreen')}>
+                    <Ionicons name="camera" size={20} color="white" />
+                </TouchableOpacity>
             </View>
             <View style={styles.containerData}>
                 {/* Inventarios */}
@@ -96,6 +99,9 @@ const styles = StyleSheet.create({
         marginTop: 50,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingLeft: 20,
+        paddingRight: 20,
     },
     backButton: {
         marginRight: 10,
@@ -114,7 +120,9 @@ const styles = StyleSheet.create({
         elevation: 3,
         flex: 1,
         marginRight: 10,
-        maxWidth: '55%',
+        maxWidth: '65%',
+        maxHeight: 50,
+        minWidth: '40%',
     },
     searchIcon: {
         marginRight: 10,
@@ -173,8 +181,8 @@ const styles = StyleSheet.create({
     },
     recursoContainer: {
         alignSelf: 'flex-start',
-        //backgroundColor: '#f5f5f5',
-        backgroundColor: 'rgba(10, 27, 122, 0.63)',
+        backgroundColor: '#f5f5f5',
+        //backgroundColor: 'rgba(10, 27, 122, 0.63)',
         borderRadius: 8,
         padding: 10,
         marginTop: 10,
@@ -187,8 +195,8 @@ const styles = StyleSheet.create({
     },
     recursoTexto: {
         fontSize: 20,
-        color: '#fff',
-        //color: '#152567',
+        //color: '#fff',
+        color: '#152567',
         marginTop: 4,
         fontWeight: '600',
     },
