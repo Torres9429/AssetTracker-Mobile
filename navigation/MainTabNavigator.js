@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, Dimensions, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, Dimensions, StyleSheet, ScrollView, Keyboard } from 'react-native';
 import InventariosStack from './InventariosStack';
-import Scanner from '../scanner/Scanner';
 import PerfilScreen from '../screens/PerfilScreen';
 import EscanearScreen from '../screens/EscanearScreen';
 
@@ -12,8 +11,25 @@ const Tab = createBottomTabNavigator();
 const { width, height } = Dimensions.get("window");
 
 export default function MainTabNavigator() {
+  const [keyBoardVisible, setKeyBoardVisible] = useState();
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow", () => {
+        setKeyBoardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide", () => {
+        setKeyBoardVisible(false);
+      }
+    );
+
+  }
+
+  );
   return (
-    <View style={{ width, height, flexGrow: 1 }}>
+    <View style={{ width, height: keyBoardVisible ? height : "100%" , flexGrow: keyBoardVisible ? 1 : 0} }>
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
@@ -28,7 +44,6 @@ export default function MainTabNavigator() {
             tabBarActiveTintColor: '#fff',
             tabBarInactiveTintColor: '#999',
             animation: 'shift',
-            //tabBarHideOnKeyboard: true,
             tabBarLabelStyle: { display: 'none' }, // Hide default tab label
             tabBarStyle: {
               position: 'absolute',
