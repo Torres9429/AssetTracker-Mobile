@@ -1,53 +1,47 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Button, Image } from 'react-native';
-import { Camera } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { useRef, useState } from 'react';
+import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function CameraComponent() {
-  const [hasCameraPermission, setHasCameraPermission] = useState(null);
-  const [camera, setCamera] = useState(null);
-  const [image, setImage] = useState(null);
-  const [type, setType] = useState(Camera.Constants.Type.back);
-
+  const [facing, setFacing] = useState('back');
   const cameraRef = useRef(null);
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [pictureTaken, setPictureTaken] = useState(false);
+  const navigation = useNavigation();
 
-  useEffect(() => {
-    (async () => {
-      const cameraStatus = await Camera.requestCameraPermissionsAsync();
-      setHasCameraPermission(cameraStatus.status === 'granted');
-    })();
-  }, []);
+  function toggleCameraFacing() {
+    setFacing((current) => (current === "back" ? "front" : "back"));
+  }
 
-  const takePicture = async () => {
+  async function handlePictureTaken() {
     if (cameraRef.current) {
-      const data = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-      setImage(data.uri);
+      try {
+        const photo = await cameraRef.current.takePictureAsync();
+        console.log("Photo taken:", photo.uri);
+        setPictureTaken(true);
+      } catch (error) {
+        console.error("Error taking picture:", error);
+      }
     }
-  };
-
-  if (hasCameraPermission === false) {
-    return <Text>No tienes acceso a la cámara</Text>;
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.cameraContainer}>
-        <Camera
-          ref={cameraRef}
-          style={styles.camera}
-          type={type}
-        />
-      </View>
-
-      <Button
-        title="Cambiar cámara"
-        onPress={() => {
-          setType(type === Camera.Constants.Type.back ? Camera.Constants.Type.front : Camera.Constants.Type.back);
-        }}
-      />
-
-      <Button title="Tomar Foto" onPress={takePicture} />
-
-      {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
+      <CameraView style={styles.camera} facing={facing} mode='picture' ref={cameraRef}>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={40} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handlePictureTaken}>
+            <Ionicons name="radio-button-on" size={40} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+            <Ionicons name="sync" size={40} color="white" />
+          </TouchableOpacity>
+        </View>
+      </CameraView>
     </View>
   );
 }
@@ -57,20 +51,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  cameraContainer: {
-    flex: 3,
-    width: '100%',
+    backgroundColor: 'black',  // Asegura que el fondo sea negro
   },
   camera: {
     flex: 1,
-    aspectRatio: 1,
     width: '100%',
+    height: '100%',  // Ocupa toda la pantalla
   },
-  imagePreview: {
-    width: '100%',
-    height: 300,
-    marginTop: 20,
-    borderRadius: 10,
+  buttonContainer: {
+    position: 'absolute',  // Asegura que los botones se ubiquen sobre la cámara
+    bottom: 50,  // Ajusta la distancia desde el fondo
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  button: {
+    padding: 10,
+    alignSelf: 'center',
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });

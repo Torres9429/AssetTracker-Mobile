@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, FlatList, ImageBackground, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import CustomModal from '../components/Modal';
 
 export default function InventariosScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
     const route = useRoute();
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedRecurso, setSelectedRecurso] = useState(null);
+    const [expandedIndex, setExpandedIndex] = useState(null);  // Estado para manejar el índice expandido
     const { inventario } = route.params;
 
     // Verifica que inventarios sea un array
@@ -25,19 +23,38 @@ export default function InventariosScreen() {
         recurso.nombre && recurso.nombre.toLowerCase().includes(search.toLowerCase())
     );
 
-    const handleShowRecurso = (recurso) => {
-        setSelectedRecurso(recurso);
-        setModalVisible(true);
+    const handleToggleDetails = (index) => {
+        if (expandedIndex === index) {
+            setExpandedIndex(null);  // Si ya está expandido, lo colapsamos
+        } else {
+            setExpandedIndex(index);  // Expande el detalle del recurso
+        }
     };
 
-    const renderRecurso = ({ item }) => (
-        <TouchableOpacity style={styles.recursoContainer} onPress={() => handleShowRecurso(item)}>
-            <Text style={styles.recursoTexto}>{item.codigo} - {item.nombre}</Text>
-        </TouchableOpacity>
+    const renderRecurso = ({ item, index }) => (
+        <View style={styles.recursoContainer}>
+            <TouchableOpacity onPress={() => handleToggleDetails(index)}>
+                <Text style={styles.recursoTexto}>
+                    {item.codigo || 'Sin código'} - {item.nombre || 'Sin nombre'}
+                </Text>
+            </TouchableOpacity>
+            {expandedIndex === index && (
+                <View style={styles.detalleContainer}>
+                    <Text style={styles.detalleTexto}>Código: {item.codigo || 'Sin código'}</Text>
+                    <Text style={styles.detalleTexto}>Marca: {item.marca || 'Desconocida'}</Text>
+                    <Text style={styles.detalleTexto}>Modelo: {item.modelo || 'Desconocido'}</Text>
+                    <Text style={styles.detalleTexto}>Responsable: {item.responsable || 'Sin responsable'}</Text>
+                    <Text style={styles.detalleTexto}>
+                        Ubicación: {item.ubicacion?.edificio || 'Sin edificio'} -{' '}
+                        {item.ubicacion?.espacios || 'Sin espacio'}
+                    </Text>
+                </View>
+            )}
+        </View>
     );
 
     return (
-        <ImageBackground source={require('../assets/backgroundSecondary.png')} style={styles.container} resizeMode='cover'>
+        <ImageBackground source={require('../assets/backgroundSecondary.png')} style={styles.container} resizeMode="cover">
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -53,14 +70,18 @@ export default function InventariosScreen() {
                         onChangeText={setSearch}
                     />
                 </View>
-                <TouchableOpacity style={{backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25}} onPress={() => navigation.navigate('Agregar')}>
+                <TouchableOpacity
+                    style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}
+                    onPress={() => navigation.navigate('Agregar')}
+                >
                     <Ionicons name="add" size={20} color="white" />
-                    <Text style={{ color: 'white', fontSize: 16,  }}>Nuevo</Text>
+                    <Text style={{ color: 'white', fontSize: 16 }}>Nuevo</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25}} onPress={() => navigation.navigate('CameraScreen')}>
+                <TouchableOpacity style={{backgroundColor: '#152567',left:10, padding: 12, flexDirection: 'row', borderRadius: 25}} onPress={() => navigation.navigate('CameraScreen')}>
                     <Ionicons name="camera" size={20} color="white" />
                 </TouchableOpacity>
             </View>
+
             <View style={styles.containerData}>
                 {/* Inventarios */}
                 <Text style={styles.sectionTitle}>Recursos del inventario</Text>
@@ -72,12 +93,6 @@ export default function InventariosScreen() {
                     showsVerticalScrollIndicator={false}
                 />
             </View>
-            <CustomModal
-                modalVisible={modalVisible}
-                recurso={selectedRecurso}
-                setModalVisible={setModalVisible}
-                setRecurso={setSelectedRecurso}
-            />
         </ImageBackground>
     );
 }
@@ -89,7 +104,7 @@ const styles = StyleSheet.create({
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'absolute'
+        position: 'absolute',
     },
     errorText: {
         fontSize: 18,
@@ -99,9 +114,9 @@ const styles = StyleSheet.create({
         marginTop: 50,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
         paddingLeft: 20,
-        paddingRight: 20,
+        paddingRight: 30,
     },
     backButton: {
         marginRight: 10,
@@ -112,7 +127,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 25,
         paddingHorizontal: 20,
-        paddingVertical: 12,
+        //paddingVertical: 12,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -147,42 +162,10 @@ const styles = StyleSheet.create({
     listContent: {
         paddingBottom: 30,
         paddingHorizontal: 10,
-        
-    },
-    inventarioContainer: {
-        flex: 1,
-        alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: 12,
-        padding: 16,
-        margin: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
-        elevation: 3,
-    },
-    inventarioImagen: {
-        width: 70,
-        height: 70,
-        borderRadius: 12,
-    },
-    inventarioFecha: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-        marginTop: 8,
-    },
-    inventarioCantidad: {
-        fontSize: 14,
-        color: '#757575',
-        fontWeight: '500',
-        marginTop: 4,
     },
     recursoContainer: {
         alignSelf: 'flex-start',
         backgroundColor: '#f5f5f5',
-        //backgroundColor: 'rgba(10, 27, 122, 0.63)',
         borderRadius: 8,
         padding: 10,
         marginTop: 10,
@@ -195,13 +178,20 @@ const styles = StyleSheet.create({
     },
     recursoTexto: {
         fontSize: 20,
-        //color: '#fff',
         color: '#152567',
         marginTop: 4,
         fontWeight: '600',
     },
-    recursoListContent: {
-        paddingBottom: 10,
+    detalleContainer: {
+        paddingLeft: 10,
+        paddingRight: 10,
+        paddingTop: 5,
+        paddingBottom: 5,
     },
-    
+    detalleTexto: {
+        fontSize: 16,
+        color: '#333',
+        marginBottom: 6,
+        fontWeight: '400',
+    },
 });

@@ -1,8 +1,29 @@
-import React from "react";
+import React,{useState} from "react";
 import { StyleSheet, Text, TouchableOpacity, View, Modal, Image, ImageBackground } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { PanGestureHandler } from 'react-native-gesture-handler';
+import { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 const CustomModal = ({ modalVisible, recurso, setModalVisible, setRecurso }) => {
+  const [modalHeight, setModalHeight] = useState("60%"); // Iniciar el modal con un tamaño predeterminado
+  const [dragY, setDragY] = useState(0); // Posición de desplazamiento Y
+
+  const handleGestureEvent = (event) => {
+    const { translationY } = event.nativeEvent;
+    if (translationY < 0) {
+      setModalHeight(Math.min("80%", `${Math.max(60, dragY + translationY)}%`)); // Limitar el tamaño máximo
+    } else if (translationY > 100) {
+      // Si se desliza hacia abajo más de un umbral, cerrar el modal
+      setModalVisible(false);
+    }
+    setDragY(translationY); // Actualizar la posición de deslizamiento
+  };
+
+  const modalAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      height: withSpring(modalHeight), // Ajustar el tamaño animado del modal
+    };
+  });
   const getImageSource = (image) => {
     if (typeof image === 'string') {
       return { uri: image };
@@ -13,7 +34,8 @@ const CustomModal = ({ modalVisible, recurso, setModalVisible, setRecurso }) => 
   return (
     <Modal visible={modalVisible} transparent animationType="slide">
       <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <PanGestureHandler onGestureEvent={handleGestureEvent}>
+          <View style={[styles.modalContent, modalAnimatedStyle]}>
             {recurso ? (
               <>
                 <Text style={styles.modalTitle}>Recurso Encontrado</Text>
@@ -22,15 +44,16 @@ const CustomModal = ({ modalVisible, recurso, setModalVisible, setRecurso }) => 
                 <Text style={styles.modalText}>Marca: {recurso.marca}</Text>
                 <Text style={styles.modalText}>Modelo: {recurso.modelo}</Text>
                 <Text style={styles.modalText}>Número de Serie: {recurso.nSerie}</Text>
-                <Image source={getImageSource(recurso.image)} style={styles.imagenRec} />
               </>
             ) : (
               <Text style={styles.modalText}>No se encontró ningún recurso.</Text>
             )}
             <TouchableOpacity style={styles.closeButton} onPress={() => { setModalVisible(false) }}>
-              <MaterialCommunityIcons name="close-circle" size={34} color="white" style={styles.closeButtonText} />
+              {/*<MaterialCommunityIcons name="close-circle" size={34} color="blue" style={styles.closeButtonText} />*/}
+              <Text style={styles.closeButtonText}>Cerrar</Text>
             </TouchableOpacity>
           </View>
+        </PanGestureHandler>
       </View>
     </Modal>
   );
@@ -49,29 +72,52 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     height: '60%',
-    backgroundColor: "rgb(21, 37, 103)",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    //backgroundColor: "rgb(21, 37, 103)",
+    backgroundColor: "white",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
     padding: 40,
     alignItems: "flex-start",
   },
-  modalTitle: { fontSize: 25, fontWeight: "bold", marginBottom: 10, alignSelf: 'center', color: 'white' },
-  modalText: { fontSize: 14, color: "#ffff" },
+  modalTitle: { 
+    fontSize: 25, 
+    fontWeight: "bold", 
+    marginBottom: 10, 
+    //alignSelf: 'center', 
+    //color: 'white' 
+    color: '#152567',
+
+  },
+  modalText: { 
+    fontSize: 18, 
+    //color: "#ffff" 
+    //borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    paddingVertical: 10,
+    width: '100%',
+  },
   closeButton: {
-    position: "absolute",
-    top: 30,
+    //position: "absolute",
+    /*top: 30,
     right: 10,
     width: 40,
-    height: 40,
+    height: 40,*/
     borderRadius: 15,
-    justifyContent: "center",
+    justifyContent: "flex-end",
     alignItems: "center",
+    backgroundColor: "#152567",
+    padding: 10,
+    marginTop: 20,
+    width: '100%',
   },
   closeButtonText: {
     color: "#ffff",
+    //color: "blue",
     fontWeight: "bold",
     right: 5,
-    top: 8
+    fontSize: 18,
+    //top: 8
   },
   imagenRec: {
     height: 200,

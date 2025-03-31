@@ -242,6 +242,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.3,
     shadowRadius: 4,
+    alignContent: "center",
   },
   actionButtonText: { fontSize: 24, color: "white", fontWeight: "bold" },
   modalContainer: {
