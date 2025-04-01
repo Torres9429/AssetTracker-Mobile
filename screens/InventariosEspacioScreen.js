@@ -1,20 +1,52 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, FlatList, ImageBackground, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    FlatList,
+    ImageBackground,
+    TouchableOpacity,
+    Dimensions,
+    KeyboardAvoidingView,
+    Keyboard,
+    Platform,
+    TouchableWithoutFeedback,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+
+const { width, height } = Dimensions.get('window');
 
 export default function InventariosEspacioScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
     const route = useRoute();
     const { espacio } = route.params;
+    const [keyBoardVisible, setKeyBoardVisible] = useState();
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyBoardVisible(true);
+        });
+
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyBoardVisible(false);
+        });
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
 
     const filteredInventarios = espacio.inventarios.filter((inventario) =>
         inventario.fecha.toLowerCase().includes(search.toLowerCase())
     );
     const handleCardPress = (item) => {
         navigation.navigate('Recursos', { inventario: item.recursos });
-      };
+    };
 
     const renderInventario = ({ item }) => (
         <TouchableOpacity style={styles.inventarioContainer} onPress={() => handleCardPress(item)}>
@@ -25,45 +57,57 @@ export default function InventariosEspacioScreen() {
     );
 
     return (
-        <ImageBackground source={require('../assets/backgroundSecondary.png')} style={styles.container} resizeMode='cover'>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={24} color="white" />
-                </TouchableOpacity>
-                <View style={styles.searchBarContainer}>
-                    <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
-                    <TextInput
-                        style={styles.searchBar}
-                        placeholder="Buscar inventario..."
-                        placeholderTextColor="#999"
-                        value={search}
-                        onChangeText={setSearch}
-                    />
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{ flex: 1 }}>
+                    <ImageBackground
+                        source={require('../assets/backgroundSecondary.png')}
+                        style={styles.container}
+                        resizeMode={keyBoardVisible ? 'cover' : 'cover'}
+                        imageStyle={{ width: keyBoardVisible ? width : 'auto', height: keyBoardVisible ? height : '100%' }}
+                    >
+                        {/* Header */}
+                        <View style={styles.header}>
+                            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                                <Ionicons name="arrow-back" size={24} color="white" />
+                            </TouchableOpacity>
+                            <View style={styles.searchBarContainer}>
+                                <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
+                                <TextInput
+                                    style={styles.searchBar}
+                                    placeholder="Buscar inventario..."
+                                    placeholderTextColor="#999"
+                                    value={search}
+                                    onChangeText={setSearch}
+                                />
+                            </View>
+                        </View>
+                        <View style={styles.containerData}>
+                            {/* Inventarios */}
+                            <Text style={styles.sectionTitle}>Inventarios</Text>
+                            <FlatList
+                                data={filteredInventarios}
+                                renderItem={renderInventario}
+                                keyExtractor={(inventario) => inventario.fecha}
+                                contentContainerStyle={styles.listContent}
+                                showsVerticalScrollIndicator={false}
+                                numColumns={2}
+                                columnWrapperStyle={{ justifyContent: 'space-between' }}
+                            />
+                        </View>
+                    </ImageBackground>
                 </View>
-            </View>
-            <View style={styles.containerData}>
-                {/* Inventarios */}
-                <Text style={styles.sectionTitle}>Inventarios</Text>
-                <FlatList
-                    data={filteredInventarios}
-                    renderItem={renderInventario}
-                    keyExtractor={(inventario) => inventario.fecha}
-                    contentContainerStyle={styles.listContent}
-                    showsVerticalScrollIndicator={false}
-                    numColumns={2}
-                    columnWrapperStyle={{ justifyContent: 'space-between' }} 
-                />
-            </View>
-        </ImageBackground>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        width: '100%',
-        height: '100%',
     },
     header: {
         marginTop: 50,

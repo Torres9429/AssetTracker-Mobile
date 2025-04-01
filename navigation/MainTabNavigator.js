@@ -25,11 +25,17 @@ export default function MainTabNavigator() {
       }
     );
 
+    // Limpiar listeners cuando el componente se desmonte
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+
   }
 
   );
   return (
-    <View style={{ width, height: keyBoardVisible ? height : "100%" , flexGrow: keyBoardVisible ? 1 : 0} }>
+    <View style={{ width, height, flexGrow: keyBoardVisible ? 1:1  } }>
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
@@ -44,7 +50,7 @@ export default function MainTabNavigator() {
             tabBarActiveTintColor: '#fff',
             tabBarInactiveTintColor: '#999',
             animation: 'shift',
-            tabBarLabelStyle: { display: 'none' }, // Hide default tab label
+            tabBarLabelStyle: { display: 'none' }, 
             tabBarStyle: {
               position: 'absolute',
               bottom: 0,
@@ -55,7 +61,7 @@ export default function MainTabNavigator() {
               borderTopWidth: 1,
               padding: 5,
               paddingBottom: Platform.OS === 'ios' ? 20 : 5,
-              zIndex: 10, // Ensure tab bar stays on top
+              zIndex: 10, 
             },
           })}
         >
@@ -91,7 +97,7 @@ export default function MainTabNavigator() {
   );
 }
 
-// Custom button for tab bar
+
 const CustomTabButton = ({ accessibilityState, children, onPress, label }) => {
   const isSelected = accessibilityState.selected;
 

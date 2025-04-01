@@ -1,7 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, FlatList, ImageBackground, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TextInput,
+    FlatList,
+    ImageBackground,
+    TouchableOpacity,
+    Dimensions,
+    KeyboardAvoidingView,
+    Keyboard,
+    Platform,
+    TouchableWithoutFeedback,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+
+const { width, height } = Dimensions.get('window');
 
 export default function InventariosScreen() {
     const [search, setSearch] = useState('');
@@ -9,6 +25,23 @@ export default function InventariosScreen() {
     const route = useRoute();
     const [expandedIndex, setExpandedIndex] = useState(null);  // Estado para manejar el índice expandido
     const { inventario } = route.params;
+
+    const [keyBoardVisible, setKeyBoardVisible] = useState();
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyBoardVisible(true);
+        });
+
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyBoardVisible(false);
+        });
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
 
     // Verifica que inventarios sea un array
     if (!Array.isArray(inventario)) {
@@ -54,46 +87,60 @@ export default function InventariosScreen() {
     );
 
     return (
-        <ImageBackground source={require('../assets/backgroundSecondary.png')} style={styles.container} resizeMode="cover">
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={24} color="white" />
-                </TouchableOpacity>
-                <View style={styles.searchBarContainer}>
-                    <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
-                    <TextInput
-                        style={styles.searchBar}
-                        placeholder="Buscar recurso..."
-                        placeholderTextColor="#999"
-                        value={search}
-                        onChangeText={setSearch}
-                    />
-                </View>
-                <TouchableOpacity
-                    style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}
-                    onPress={() => navigation.navigate('Agregar')}
-                >
-                    <Ionicons name="add" size={20} color="white" />
-                    <Text style={{ color: 'white', fontSize: 16 }}>Nuevo</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={{backgroundColor: '#152567',left:10, padding: 12, flexDirection: 'row', borderRadius: 25}} onPress={() => navigation.navigate('CameraScreen')}>
-                    <Ionicons name="camera" size={20} color="white" />
-                </TouchableOpacity>
-            </View>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={{ flex: 1 }}>
+                    <ImageBackground
+                        source={require('../assets/backgroundSecondary.png')}
+                        style={styles.container}
+                        resizeMode={keyBoardVisible ? 'cover' : 'cover'}
+                        imageStyle={{ width: keyBoardVisible ? width : 'auto', height: keyBoardVisible ? height : '100%' }}
+                    >
+                        {/* Header */}
+                        <View style={styles.header}>
+                            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                                <Ionicons name="arrow-back" size={24} color="white" />
+                            </TouchableOpacity>
+                            <View style={styles.searchBarContainer}>
+                                <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
+                                <TextInput
+                                    style={styles.searchBar}
+                                    placeholder="Buscar recurso..."
+                                    placeholderTextColor="#999"
+                                    value={search}
+                                    onChangeText={setSearch}
+                                />
+                            </View>
+                            <TouchableOpacity
+                                style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}
+                                onPress={() => navigation.navigate('Agregar')}
+                            >
+                                <Ionicons name="add" size={20} color="white" />
+                                <Text style={{ color: 'white', fontSize: 16 }}>Nuevo</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{ backgroundColor: '#152567', left: 10, padding: 12, flexDirection: 'row', borderRadius: 25 }} onPress={() => navigation.navigate('CameraScreen')}>
+                                <Ionicons name="camera" size={20} color="white" />
+                            </TouchableOpacity>
+                        </View>
 
-            <View style={styles.containerData}>
-                {/* Inventarios */}
-                <Text style={styles.sectionTitle}>Recursos del inventario</Text>
-                <FlatList
-                    data={filteredInventarios}
-                    renderItem={renderRecurso}
-                    keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={styles.listContent}
-                    showsVerticalScrollIndicator={false}
-                />
-            </View>
-        </ImageBackground>
+                        <View style={styles.containerData}>
+                            {/* Inventarios */}
+                            <Text style={styles.sectionTitle}>Recursos del inventario</Text>
+                            <FlatList
+                                data={filteredInventarios}
+                                renderItem={renderRecurso}
+                                keyExtractor={(item, index) => index.toString()}
+                                contentContainerStyle={styles.listContent}
+                                showsVerticalScrollIndicator={false}
+                            />
+                        </View>
+                    </ImageBackground>
+                </View>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 }
 
