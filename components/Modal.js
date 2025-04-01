@@ -1,11 +1,11 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, Modal, Image, ImageBackground } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 const CustomModal = ({ modalVisible, recurso, setModalVisible, setRecurso }) => {
-  const [modalHeight, setModalHeight] = useState("60%"); // Iniciar el modal con un tamaño predeterminado
+  const [modalHeight, setModalHeight] = useState(); // Iniciar el modal con un tamaño predeterminado
   const [dragY, setDragY] = useState(0); // Posición de desplazamiento Y
 
   const handleGestureEvent = (event) => {
@@ -19,11 +19,11 @@ const CustomModal = ({ modalVisible, recurso, setModalVisible, setRecurso }) => 
     setDragY(translationY); // Actualizar la posición de deslizamiento
   };
 
-  const modalAnimatedStyle = useAnimatedStyle(() => {
+  /*const modalAnimatedStyle = useAnimatedStyle(() => {
     return {
       height: withSpring(modalHeight), // Ajustar el tamaño animado del modal
     };
-  });
+  });*/
   const getImageSource = (image) => {
     if (typeof image === 'string') {
       return { uri: image };
@@ -34,8 +34,8 @@ const CustomModal = ({ modalVisible, recurso, setModalVisible, setRecurso }) => 
   return (
     <Modal visible={modalVisible} transparent animationType="slide">
       <View style={styles.modalContainer}>
-          <PanGestureHandler onGestureEvent={handleGestureEvent}>
-          <View style={[styles.modalContent, modalAnimatedStyle]}>
+        {/*<PanGestureHandler onGestureEvent={handleGestureEvent}>*/}
+          <View style={[styles.modalContent, modalHeight]}>
             {recurso ? (
               <>
                 <Text style={styles.modalTitle}>Recurso Encontrado</Text>
@@ -46,14 +46,20 @@ const CustomModal = ({ modalVisible, recurso, setModalVisible, setRecurso }) => 
                 <Text style={styles.modalText}>Número de Serie: {recurso.nSerie}</Text>
               </>
             ) : (
-              <Text style={styles.modalText}>No se encontró ningún recurso.</Text>
+              <Text style={[styles.modalText, {alignSelf: 'center',} ]}>No se encontró ningún recurso.</Text>
             )}
-            <TouchableOpacity style={styles.closeButton} onPress={() => { setModalVisible(false) }}>
-              {/*<MaterialCommunityIcons name="close-circle" size={34} color="blue" style={styles.closeButtonText} />*/}
-              <Text style={styles.closeButtonText}>Cerrar</Text>
-            </TouchableOpacity>
+            <View style={{ flex: 1, justifyContent: "flex-end", alignItems: "center", width: '100%' }}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => {
+                  setModalVisible(false);
+                }}
+              >
+                <Text style={styles.closeButtonText}>Cerrar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </PanGestureHandler>
+        {/*</PanGestureHandler>*/}
       </View>
     </Modal>
   );
@@ -70,6 +76,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
+    //flex: 1,
     width: '100%',
     height: '60%',
     //backgroundColor: "rgb(21, 37, 103)",
@@ -79,17 +86,17 @@ const styles = StyleSheet.create({
     padding: 40,
     alignItems: "flex-start",
   },
-  modalTitle: { 
-    fontSize: 25, 
-    fontWeight: "bold", 
-    marginBottom: 10, 
+  modalTitle: {
+    fontSize: 25,
+    fontWeight: "bold",
+    marginBottom: 10,
     //alignSelf: 'center', 
     //color: 'white' 
     color: '#152567',
 
   },
-  modalText: { 
-    fontSize: 18, 
+  modalText: {
+    fontSize: 18,
     //color: "#ffff" 
     //borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -110,6 +117,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 20,
     width: '100%',
+    alignSelf: 'flex-end'
   },
   closeButtonText: {
     color: "#ffff",

@@ -95,7 +95,9 @@ const reiniciarComponente = () => setKey(prevKey => prevKey + 1);
       setRecurso(recursoEncontrado);
       setModalVisible(true);
     } else {
-      Alert.alert('Recurso no encontrado', 'No se encontró ningún recurso con ese código.');
+      //Alert.alert('Recurso no encontrado', 'No se encontró ningún recurso con ese código.');
+      setRecurso(null);
+      setModalVisible(true)
     }
   };
 

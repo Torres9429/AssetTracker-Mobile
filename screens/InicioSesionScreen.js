@@ -7,8 +7,9 @@ const InicioSesionScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const { handleLogin, error } = useContext(AuthContext);
 
-  const { handleLogin } = useContext(AuthContext);
+  //const { handleLogin } = useContext(AuthContext);
   /*const handleLogin = () => {
     if (email === '2' && password === '1') {
       navigation.navigate('Main');
@@ -75,6 +76,10 @@ const InicioSesionScreen = ({ navigation }) => {
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>Entrar</Text>
             </TouchableOpacity>
+            {error && (
+              <Text style={styles.errorText}>{error}</Text>
+            )}
+
             <Text style={styles.signUpText}>
               ¿No tienes una cuenta? <Text style={styles.link} onPress={() => navigation.navigate("SignUp")}>Regístrate</Text>
             </Text>
@@ -194,11 +199,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#F0F0F0",
     //marginVertical: 10,
   },
-  
   dividerText: {
     fontSize: 16,
     color: "#888",
   },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  
 
 });
 

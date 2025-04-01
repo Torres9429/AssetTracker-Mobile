@@ -35,7 +35,7 @@ export default function MainTabNavigator() {
 
   );
   return (
-    <View style={{ width, height, flexGrow: keyBoardVisible ? 1:1  } }>
+    <View style={{ width, height, flexGrow: 1 } }>
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {

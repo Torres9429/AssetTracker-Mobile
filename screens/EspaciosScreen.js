@@ -16,12 +16,15 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { getEspacios } from '../api/espaciosApi';
 
 const { width, height } = Dimensions.get('window');
 
 export default function EspaciosScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
+    const [espacios, setEspacios] = useState([]);
+    const [loading, setLoading] = useState(true); // Estado para manejar la carga
     const route = useRoute();
     const [keyBoardVisible, setKeyBoardVisible] = useState();
 
@@ -39,11 +42,40 @@ export default function EspaciosScreen() {
             keyboardDidHideListener.remove();
         };
     }, []);
+
     const { edificio } = route.params;
 
-    const filteredEspacios = edificio.espacios.filter((espacio) =>
+    // Obtiene los edificios desde la API
+    useEffect(() => {
+        console.log('Edificio ID recibido:', edificio);
+        const fetchEspacios = async () => {
+            try {
+                const response = await getEspacios();
+                const allEspacios = response.data.result || [];
+                console.log('Espacios recibidos:', allEspacios);
+    
+                // Filtra los espacios por el edificio seleccionado
+                const filteredEspacios = allEspacios.filter(
+                    (espacio) => espacio.edificio_id === edificio
+                );
+    
+                console.log('Espacios filtrados:', filteredEspacios);
+                setEspacios(filteredEspacios);
+            } catch (error) {
+                console.error('Error al obtener los espacios:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchEspacios();
+    }, [edificio]);
+     // Escucha cambios en edificioId
+
+    const filteredEspacios = espacios.filter((espacio) =>
         espacio.nombre.toLowerCase().includes(search.toLowerCase())
     );
+
     const handleCardPress = (item) => {
         navigation.navigate('Inventarios', { espacio: item });
     };
@@ -91,7 +123,7 @@ export default function EspaciosScreen() {
                             <FlatList
                                 data={filteredEspacios}
                                 renderItem={renderEspacio}
-                                keyExtractor={(espacio) => espacio.id ? espacio.id.toString() : Math.random().toString()}
+                                keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
                                 contentContainerStyle={styles.listContent}
                                 showsVerticalScrollIndicator={false}
                                 numColumns={2}
@@ -186,4 +218,3 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
 });
-

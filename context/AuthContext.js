@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         ]);
         
         console.log('Login exitoso, token guardado:', jwt);
-        //const jwtString = JSON.stringify(jwt);  // Asegúrate de que el JWT se guarda como una cadena
+        //const jwtString = JSON.stringify(jwt);  
         //await AsyncStorage.setItem("jwt", jwtString);
         await AsyncStorage.setItem("user", JSON.stringify({ username, role }));
         await AsyncStorage.setItem("userId", String(userId));
@@ -41,8 +41,8 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     } catch (err) {
-      console.error("Error en la conexión:", err);
-      setError("Error en la conexión con el servidor");
+      //console.error("Error en la conexión:", err);
+      setError("Correo o contraseña incorrectos");
     }
   };
 

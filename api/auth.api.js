@@ -12,10 +12,10 @@ export const login = async (credenciales) => {
       })
   } catch (error) {
     if (error.response) {
-      console.error("Error en la solicitud de login:", error.response.data);
+      //console.error("Error en la solicitud de login:", error.response.data);
       throw new Error(error.response.data.message || "Error en la autenticación");
     } else {
-      console.error("Error en la conexión:", error);
+      //console.error("Error en la conexión:", error);
       throw new Error("Error en la conexión con el servidor");
     }
   }

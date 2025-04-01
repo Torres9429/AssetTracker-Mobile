@@ -10,7 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function PerfilScreen() {
   const navigation = useNavigation();
   const [usuario, setUsuario] = useState(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const isFocused = useIsFocused(); // Hook para verificar si la pantalla está enfocada
 
   useEffect(() => {
@@ -18,19 +18,19 @@ export default function PerfilScreen() {
       try {
         const idString = await AsyncStorage.getItem("userId");
         if (!idString) {
-          console.error("No se encontró el ID del usuario");
+          //console.error("No se encontró el ID del usuario");
           return;
         }
-  
+
         const id = parseInt(idString, 10);
         if (isNaN(id)) {
           console.error("El ID del usuario no es un número válido");
           return;
         }
-  
+
         const response = await getUsuario(id);
         console.log("Datos del usuario:", response.data);
-  
+
         if (response) {
           setUsuario(response.data.result[0]); // Guardar solo el primer objeto
         } else {
@@ -42,10 +42,10 @@ export default function PerfilScreen() {
         setLoading(false);
       }
     };
-  
+
     fetchUsuario();
   }, [isFocused]); // Dependencia para recargar los datos al volver a la pantalla
-  
+
   const { logout } = useContext(AuthContext);
 
   if (loading) {
@@ -55,7 +55,7 @@ export default function PerfilScreen() {
       </SafeAreaView>
     );
   }
-  
+
   if (!usuario) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -82,7 +82,9 @@ export default function PerfilScreen() {
         <View style={styles.infoContainer}>
           <View style={[styles.infoBox, styles.universityBox]}>
             <Text style={styles.infoLabel}>Tipo de usuario</Text>
-            <Text style={styles.infoValue}>{usuario.rol  === "ROLE_ADMIN_ACCESS" ? "Administrador" : "Inspector"}</Text> {/* Aquí va el tipo de usuario ( PENDIENTE ) */}
+            <Text style={styles.infoValue}>
+              {usuario.rol && (usuario.rol === "ROLE_ADMIN_ACCESS" ? "Administrador" : "Inspector")}
+            </Text>
           </View>
         </View>
         <View style={styles.menuContainer}>
