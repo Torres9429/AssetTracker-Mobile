@@ -16,12 +16,15 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { contarRecursos, getRecursos } from '../api/recursosApi';
 
 const { width, height } = Dimensions.get('window');
 
 export default function InventariosScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
+    const [recursos, setRecursos] = useState([]);
+    const [loading, setLoading] = useState(true); // Estado para manejar la carga
     const route = useRoute();
     const [expandedIndex, setExpandedIndex] = useState(null);  // Estado para manejar el índice expandido
     const { inventario } = route.params;
@@ -44,15 +47,41 @@ export default function InventariosScreen() {
     }, []);
 
     // Verifica que inventarios sea un array
-    if (!Array.isArray(inventario)) {
+    /*if (!Array.isArray(inventario)) {
         return (
             <View style={styles.container}>
                 <Text style={styles.errorText}>No se encontraron inventarios.</Text>
             </View>
         );
-    }
+    }*/
 
-    const filteredInventarios = inventario.filter((recurso) =>
+    useEffect(() => {
+            console.log('Inventario ID recibido:', inventario.id);
+            const fetchEspacios = async () => {
+                try {
+                    const response = await getRecursos();
+                    const allRecursos = response.data.result || [];
+                    console.log('Recursos recibidos:', allRecursos);
+    
+                    // Filtra los espacios por el edificio seleccionado
+                    const filteredRecursos = allRecursos.filter(
+                        (recurso) => inventario.recurso.id === recurso.id
+                    );
+    
+                    console.log('Recursos filtrados:', filteredRecursos);
+                    setRecursos(filteredRecursos);
+                } catch (error) {
+                    console.error('Error al obtener los Recursos:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+    
+            fetchEspacios();
+        }, [recursos]);
+        
+
+    const filteredInventarios = recursos.filter((recurso) =>
         recurso.nombre && recurso.nombre.toLowerCase().includes(search.toLowerCase())
     );
 

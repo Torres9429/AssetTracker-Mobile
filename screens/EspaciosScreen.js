@@ -56,7 +56,7 @@ export default function EspaciosScreen() {
     
                 // Filtra los espacios por el edificio seleccionado
                 const filteredEspacios = allEspacios.filter(
-                    (espacio) => espacio.edificio_id === edificio
+                    (espacio) => espacio.edificio.id === edificio
                 );
     
                 console.log('Espacios filtrados:', filteredEspacios);

@@ -16,12 +16,16 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { getInventarios } from '../api/inventariosEspaciosApi';
+import { contarRecursos } from '../api/recursosApi';
 
 const { width, height } = Dimensions.get('window');
 
 export default function InventariosEspacioScreen() {
     const [search, setSearch] = useState('');
     const navigation = useNavigation();
+    const [inventarios, setInventarios] = useState([]);
+    const [loading, setLoading] = useState(true); // Estado para manejar la carga
     const route = useRoute();
     const { espacio } = route.params;
     const [keyBoardVisible, setKeyBoardVisible] = useState();
@@ -40,21 +44,59 @@ export default function InventariosEspacioScreen() {
             keyboardDidHideListener.remove();
         };
     }, []);
+    useEffect(() => {
+        console.log('Espacio ID recibido:', espacio.id);
+        const fetchEspacios = async () => {
+            try {
+                const response = await getInventarios();
+                const allInventarios = response.data.result || [];
+                console.log('Inventarios recibidos:', allInventarios);
 
-    const filteredInventarios = espacio.inventarios.filter((inventario) =>
-        inventario.fecha.toLowerCase().includes(search.toLowerCase())
+                // Filtra los espacios por el edificio seleccionado
+                const filteredEspacios = allInventarios.filter(
+                    (inventario) => inventario.espacio.id === espacio.id
+                );
+
+                console.log('Inventarios filtrados:', filteredEspacios);
+                setInventarios(filteredEspacios);
+            } catch (error) {
+                console.error('Error al obtener los Inventarios:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEspacios();
+    }, [espacio]);
+    const numeroRecursos = contarRecursos();
+
+    const filteredInventarios = inventarios.filter((inventario) =>
+        inventario.fechaCreacion.toLowerCase().includes(search.toLowerCase())
     );
     const handleCardPress = (item) => {
         navigation.navigate('Recursos', { inventario: item.recursos });
     };
 
-    const renderInventario = ({ item }) => (
-        <TouchableOpacity style={styles.inventarioContainer} onPress={() => handleCardPress(item)}>
-            {item.imagen && <Image source={{ uri: item.imagen }} style={styles.inventarioImagen} />}
-            <Text style={styles.inventarioFecha}>{item.fecha}</Text>
-            <Text style={styles.inventarioCantidad}>Cantidad: {item.cantidad}</Text>
-        </TouchableOpacity>
-    );
+
+
+    const renderInventario = ({ item }) => {
+        // Convertir la fecha al formato deseado
+        const fechaFormateada = new Date(item.fechaCreacion).toLocaleDateString("es-ES", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+
+        return (
+            <TouchableOpacity style={styles.inventarioContainer} onPress={() => handleCardPress(item)}>
+                {item.imagen && <Image source={{ uri: item.imagen }} style={styles.inventarioImagen} />}
+                <Text style={styles.inventarioFecha}>{fechaFormateada}</Text>
+                {/*<Text style={styles.inventarioCantidad}>{numeroRecursos}</Text>*/}
+            </TouchableOpacity>
+        );
+    };
+
+
 
     return (
         <KeyboardAvoidingView

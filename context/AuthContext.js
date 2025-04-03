@@ -1,4 +1,55 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
+import { login as loginApi } from "../api/auth.api";
+import { useNavigation } from "@react-navigation/native";
+import { saveToken, getToken, removeToken } from "../api/authService"; // Usa las funciones que me diste
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "../api/api";
+
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigation = useNavigation();
+
+
+  const handleLogin = async (correo, password) => {
+    try {
+      const response = await loginApi({ correo, password });
+  
+      // Desestructuración de los datos correctamente
+      const { jwt, username, role, userId } = response.data;
+  
+      // Verifica si el token y el usuario existen
+      if (jwt && username && userId) {
+        await saveToken(jwt);
+        console.log("Token guardado:", jwt);
+  
+        const user = { username, role, userId };
+        await AsyncStorage.setItem("user", JSON.stringify(user));
+        setUser(user);
+        navigation.navigate("Main");
+      } else {
+        console.error("Token o usuario no disponibles en la respuesta.");
+      }
+    } catch (error) {
+      console.error("Error en el inicio de sesión:", error);
+    }
+  };
+
+  const logout = async () => {
+    await removeToken();
+    setUser(null);
+    navigation.navigate("Welcome");
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, handleLogin, logout, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+/*import { createContext, useState } from "react";
 import { login as loginApi } from "../api/auth.api";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -52,7 +103,7 @@ export const AuthProvider = ({ children }) => {
     await AsyncStorage.removeItem("user");
     await AsyncStorage.removeItem("userId");
     await AsyncStorage.removeItem("expiration");*/
-    await AsyncStorage.clear();
+    /*await AsyncStorage.clear();
     navigation.navigate("Welcome");
   };
 
@@ -61,4 +112,4 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
+};*/

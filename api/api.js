@@ -1,4 +1,49 @@
-// api.js
+import axios from 'axios';
+import { API_BASE_URL } from '@env';
+import { getToken } from '../api/authService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json"
+},
+});
+console.log('API Base URL:', API_BASE_URL);
+
+
+
+api.interceptors.request.use(
+  async (config) => {
+    //const token = await getToken();
+    const token = await AsyncStorage.getItem("jwt");
+    console.log("Token obtenido:", token); // Muestra el token obtenido
+    if (token) {        
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => {
+    console.log("Respuesta de la API:", response);
+    return response;
+  },
+  (error) => {
+    console.error("Error en la respuesta de la API:", error.response ? error.response.data : error.message);
+    return Promise.reject(error);
+  }
+);
+
+export default api;
+
+/*/ api.js
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -11,24 +56,40 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+const noAuthRoutes = [
+  "/auth/login",
+  "/usuarios/save",
+  "/usuarios/change-password",
+  "/usuarios/send-email",
+  "/usuarios/verify-code",
+  "/usuarios/verify-password",
+  "/usuarios/change-password-gral"
+];
+
 api.interceptors.request.use(
   async (config) => {
-    const token = await AsyncStorage.getItem("jwt");
-    console.log("Token desde AsyncStorage:", token);
-    ("Token desde AsyncStorage:", token);
-    // console.log("Token en el request interceptor:", token);
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log("Token agregado a la solicitud:", token);
-      
+    if (!config.url) {
+      return config;
     }
+
+    // Normaliza la URL eliminando parámetros de consulta para comparación exacta
+    const urlPath = new URL(config.url, API_BASE_URL+'/usuarios').pathname;
+    const requiresAuth = !noAuthRoutes.includes(urlPath);
+
+    if (requiresAuth) {
+      const token = await AsyncStorage.getItem("jwt");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
     return config;
   },
   (error) => {
-    // console.error("Error en la solicitud:", error);
     return Promise.reject(error);
   }
 );
+
 
 api.interceptors.response.use(
   (response) => {
@@ -46,7 +107,7 @@ export default api;
 
 // // api.js
 // import axios from "axios";
-// //Se usa Asynctorage como si  fuera un local stoarage 
+// //Se usa Asynctorage como si  fuera un local stoarage
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // const API_BASE_URL = "https://3a76hppbug.execute-api.us-east-1.amazonaws.com/";
@@ -111,4 +172,5 @@ export default api;
 //   }
 // };
 
-// export { api, saveToken, getToken, removeToken };
+// export { api, saveToken, getToken, removeToken };*
+*/

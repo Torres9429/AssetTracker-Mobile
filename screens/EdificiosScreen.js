@@ -74,7 +74,7 @@ export default function EdificiosScreen() {
   // Renderiza un edificio individual
   const renderEdificio = ({ item }) => (
     <TouchableOpacity style={styles.edificioContainer} onPress={() => handleCardPress(item)}>
-      {item.imagen && <Image source={{ uri: item.imagen }} style={styles.edificioImagen} />}
+      {item.urlImagen && <Image source={{ uri: item.urlImagen }} style={styles.edificioImagen} />}
       <Text style={styles.edificioNombre}>{item.nombre}</Text>
       <Text style={styles.edificioPisos}>Pisos: {item.numeroPisos}</Text>
     </TouchableOpacity>
