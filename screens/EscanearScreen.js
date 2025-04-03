@@ -12,6 +12,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import edificios from '../data/edificios';
 import CustomModal from "../components/Modal";
 import ScannerCamera from "../components/ScannerCamera";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { getRecursos } from "../api/recursosApi";
 
 export default function EscanearScreen() {
   const [scanned, setScanned] = useState(false);
@@ -23,7 +25,7 @@ export default function EscanearScreen() {
   const [key, setKey] = React.useState(0);
   const isFocused = useIsFocused(); // Hook para verificar si la pantalla está enfocada
 
-const reiniciarComponente = () => setKey(prevKey => prevKey + 1);
+  const reiniciarComponente = () => setKey(prevKey => prevKey + 1);
 
   //Reiniciar componentes para evitar fallas
   useFocusEffect(
@@ -33,7 +35,7 @@ const reiniciarComponente = () => setKey(prevKey => prevKey + 1);
       setModalVisible(false);
       setCode('');
       setRecurso(null);
-      
+
       return () => {
         console.log("Pantalla desenfocada, limpiando scanner...");
         setScanned(false); // Opcional: asegurarse de que se limpie
@@ -53,45 +55,54 @@ const reiniciarComponente = () => setKey(prevKey => prevKey + 1);
     );
   }
 
-  const buscarRecurso = (codigo) => {
-    for (const edificio of edificios) {
-      for (const espacio of edificio.espacios) {
-        for (const inventario of espacio.inventarios || []) {
-          if (inventario.recursos) {
-            const recursoEncontrado = inventario.recursos.find((recurso) => recurso.codigo === codigo);
-            if (recursoEncontrado) {
-              return recursoEncontrado;
-            }
-          }
-        }
-      }
+  const buscarRecurso = async (codigo) => {
+    const response = await getRecursos();
+    const allRecursos = response.data.result || []; // Asegurar que sea un array
+    console.log("Recursos obtenidos:", allRecursos);
+
+    // Buscar el recurso que coincida con el código
+    const recursoEncontrado = allRecursos.find(recurso => recurso.codigo === codigo);
+    console.log("Recurso encontrado:", recursoEncontrado);
+
+    if (recursoEncontrado && recursoEncontrado.length > 0 || recursoEncontrado != null || undefined || "") {  
+      setRecurso(recursoEncontrado); // Guardar el recurso encontrado
+      return recursoEncontrado; // Retorna el recurso encontrado
+
     }
-    return null; // Solo devolver null si no se encontró en toda la estructura
-  };
-  
-  function handleBarCodeScanned({ type, data }) {
-    if (!scanned) {
-      setScanned(true);
-      
-      const recursoEncontrado = buscarRecurso(data);
-      setRecurso(recursoEncontrado); // Guardar el recurso (si se encontró o null)
-  
-      if (recursoEncontrado) {
-        setModalVisible(true); // Solo abrir el modal si el recurso fue encontrado
-      } else {
-        Alert.alert("Recurso no encontrado", "No se encontró ningún recurso con ese código.");
-      }
-  
-      setTimeout(() => {
-        setScanned(false);
-      }, 3000);
+    return null; // Retorna null si no se encontró ningún recurso
+};
+
+
+
+async function handleBarCodeScanned({ type, data }) {
+  if (!scanned) {
+    setScanned(true);
+
+    const recursoEncontrado = await buscarRecurso(data);
+    console.log("Recurso encontrado:", recursoEncontrado); // Verifica el recurso encontrado
+    if (recursoEncontrado && recursoEncontrado.length > 0 || recursoEncontrado != null || undefined || "") {
+      setRecurso(recursoEncontrado); // Guardar el recurso encontrado
     }
+    //setRecurso(recursoEncontrado); 
+
+    if (recursoEncontrado) {
+      setModalVisible(true);
+    } else {
+      setRecurso(null); // Si no se encuentra el recurso, establece null
+      setModalVisible(true);  
+    }
+
+    setTimeout(() => {
+      setScanned(false); // Permitir escanear nuevamente
+    }, 1500); // Aumenta un poco el tiempo para evitar doble escaneo
   }
-  
+}
+
+
 
   const handleIngresarCodigo = () => {
     const recursoEncontrado = buscarRecurso(code);
-    if (recursoEncontrado) {
+    if (recursoEncontrado != null || undefined || "" || recursoEncontrado.length > 0) {
       setRecurso(recursoEncontrado);
       setModalVisible(true);
     } else {
@@ -113,7 +124,7 @@ const reiniciarComponente = () => setKey(prevKey => prevKey + 1);
         >
           <View style={styles.container} key={key}>
             {/* Componente del scanner|cámara */}
-           <ScannerCamera
+            <ScannerCamera
               scanned={scanned}
               handleBarCodeScanned={handleBarCodeScanned}
               handleRecursoEncontrado={setRecurso} // Actualiza el estado en Scanner
@@ -166,7 +177,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 120,
     position: "relative",
-    backgroundColor: "transparent", 
+    backgroundColor: "transparent",
     borderWidth: 2,
     borderColor: "rgba(255, 255, 255, 0)",
   },

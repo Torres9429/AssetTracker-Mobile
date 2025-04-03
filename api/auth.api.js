@@ -4,7 +4,8 @@ import api from "./api";
 const endpoint = "auth";
 console.log("api: ",api.toString());
 export const login = async (credenciales) => {
-  console.log("Credenciales enviadas para login:", credenciales); // Muestra las credenciales que se envían
+  return await api.post(`${endpoint}/login`, credenciales)
+  /*console.log("Credenciales enviadas para login:", credenciales); // Muestra las credenciales que se envían
   try {
     return await axios.post(`https://3a76hppbug.execute-api.us-east-1.amazonaws.com/auth/login`, credenciales)
       .then(response => {
@@ -19,7 +20,7 @@ export const login = async (credenciales) => {
       console.error("Error en la conexión:", error);
       throw new Error("Error en la conexión con el servidor");
     }
-  }
+  }*/
 
 };
 

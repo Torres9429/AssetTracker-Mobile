@@ -63,12 +63,6 @@ export default function PerfilScreen() {
       </SafeAreaView>
     );
   }
-  const usuario1 = {
-    nombre: 'Carlos Jair',
-    apellidos: 'Rodríguez Coronel',
-    tipoUsuario: 'Administrador',
-    correo: 'carlosrodriguez@utez.edu.mx',
-  };
 
   return (
     <SafeAreaView style={styles.safeArea}>

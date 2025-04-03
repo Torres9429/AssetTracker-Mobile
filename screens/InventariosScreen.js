@@ -27,7 +27,7 @@ export default function InventariosScreen() {
     const [loading, setLoading] = useState(true); // Estado para manejar la carga
     const route = useRoute();
     const [expandedIndex, setExpandedIndex] = useState(null);  // Estado para manejar el índice expandido
-    const { inventario } = route.params;
+    const { inventario } = route.params || {};
 
     const [keyBoardVisible, setKeyBoardVisible] = useState();
 
@@ -57,6 +57,10 @@ export default function InventariosScreen() {
 
     useEffect(() => {
             console.log('Inventario ID recibido:', inventario.id);
+            if (!inventario || !inventario.id) {
+                console.error('Error: El parámetro inventario no está definido correctamente.');
+                return;
+            }
             const fetchEspacios = async () => {
                 try {
                     const response = await getRecursos();
@@ -65,7 +69,7 @@ export default function InventariosScreen() {
     
                     // Filtra los espacios por el edificio seleccionado
                     const filteredRecursos = allRecursos.filter(
-                        (recurso) => inventario.recurso.id === recurso.id
+                        (recurso) => inventario.id=== recurso.inventarioLevantado.id
                     );
     
                     console.log('Recursos filtrados:', filteredRecursos);
@@ -78,11 +82,11 @@ export default function InventariosScreen() {
             };
     
             fetchEspacios();
-        }, [recursos]);
+        }, [inventario.id]);
         
 
     const filteredInventarios = recursos.filter((recurso) =>
-        recurso.nombre && recurso.nombre.toLowerCase().includes(search.toLowerCase())
+        recurso.descripcion || recurso.codigo || '' && recurso.nombre.toLowerCase().includes(search.toLowerCase())
     );
 
     const handleToggleDetails = (index) => {
@@ -97,7 +101,7 @@ export default function InventariosScreen() {
         <View style={styles.recursoContainer}>
             <TouchableOpacity onPress={() => handleToggleDetails(index)}>
                 <Text style={styles.recursoTexto}>
-                    {item.codigo || 'Sin código'} - {item.nombre || 'Sin nombre'}
+                    {item.codigo || 'Sin código'} - {item.descripcion || 'Sin descripción'}
                 </Text>
             </TouchableOpacity>
             {expandedIndex === index && (
@@ -105,11 +109,8 @@ export default function InventariosScreen() {
                     <Text style={styles.detalleTexto}>Código: {item.codigo || 'Sin código'}</Text>
                     <Text style={styles.detalleTexto}>Marca: {item.marca || 'Desconocida'}</Text>
                     <Text style={styles.detalleTexto}>Modelo: {item.modelo || 'Desconocido'}</Text>
-                    <Text style={styles.detalleTexto}>Responsable: {item.responsable || 'Sin responsable'}</Text>
-                    <Text style={styles.detalleTexto}>
-                        Ubicación: {item.ubicacion?.edificio || 'Sin edificio'} -{' '}
-                        {item.ubicacion?.espacios || 'Sin espacio'}
-                    </Text>
+                    <Text style={styles.detalleTexto}>Número de serie: {item.numeroSerie || 'Desconocido'}</Text>
+                    <Text style={styles.detalleTexto}>Observaciones: {item.observaciones || 'Sin observaciones'}</Text>
                 </View>
             )}
         </View>

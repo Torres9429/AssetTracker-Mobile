@@ -12,20 +12,20 @@ export default function ScannerCamera({ scanned, handleBarCodeScanned, handleRec
     }, []);*/
   
     // Función para buscar el recurso en la lista de edificios
-    const buscarRecurso = (codigo) => {
-      for (const edificio of edificios) {
-        for (const espacio of edificio.espacios) {
-          for (const inventario of espacio.inventarios || []) {
-            if (inventario.recursos) {
-              const recursoEncontrado = inventario.recursos.find((recurso) => recurso.codigo === codigo);
-              if (recursoEncontrado) {
-                return recursoEncontrado;
-              }
-            }
-          }
+    const buscarRecurso = async (codigo) => {
+        const response = await getRecursos();
+        const allRecursos = response.data.result || []; // Asegurar que sea un array
+        console.log("Recursos obtenidos:", allRecursos);
+    
+        // Buscar el recurso que coincida con el código
+        const recursoEncontrado = allRecursos.find(recurso => recurso.codigo === codigo);
+        console.log("Recurso encontrado:", recursoEncontrado);
+    
+        if (recursoEncontrado) {
+          return recursoEncontrado; // Retorna el recurso encontrado
+    
         }
-      }
-      return null;
+        return null; // Retorna null si no se encontró ningún recurso
     };
   
     // Ejecuta la búsqueda automática cuando se escanea un código
@@ -51,9 +51,10 @@ export default function ScannerCamera({ scanned, handleBarCodeScanned, handleRec
         <CameraView
             style={styles.camera}
             barcodeScannerSettings={{
-                barcodeTypes: ['qr', 'ean13', 'code128', 'upc_a'],
+                barcodeTypes: ['qr', 'ean13', 'code128', 'upc_a','code39', 'ean8', 'itf', 'pdf417'],
               }}
               onBarcodeScanned={scanned ? undefined : handleScan}
+              
         >
             {/* Overlay Oscuro */}
             <View style={styles.overlay}>

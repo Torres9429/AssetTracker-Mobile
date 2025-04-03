@@ -1,65 +1,63 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Modal, Image, ImageBackground } from "react-native";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { PanGestureHandler } from 'react-native-gesture-handler';
-import { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, Modal } from "react-native";
+import { getResponsable } from "../api/responsablesApi";
 
-const CustomModal = ({ modalVisible, recurso, setModalVisible, setRecurso }) => {
-  const [modalHeight, setModalHeight] = useState(); // Iniciar el modal con un tamaño predeterminado
-  const [dragY, setDragY] = useState(0); // Posición de desplazamiento Y
+const CustomModal = ({ modalVisible, recurso, setModalVisible }) => {
+  const [responsable, setResponsable] = useState(null);
 
-  const handleGestureEvent = (event) => {
-    const { translationY } = event.nativeEvent;
-    if (translationY < 0) {
-      setModalHeight(Math.min("80%", `${Math.max(60, dragY + translationY)}%`)); // Limitar el tamaño máximo
-    } else if (translationY > 100) {
-      // Si se desliza hacia abajo más de un umbral, cerrar el modal
-      setModalVisible(false);
+  useEffect(() => {
+    if (!recurso || !recurso.responsable || !recurso.responsable.id) {
+      setResponsable(null);
+      return;
     }
-    setDragY(translationY); // Actualizar la posición de deslizamiento
-  };
 
-  /*const modalAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      height: withSpring(modalHeight), // Ajustar el tamaño animado del modal
+    const fetchResponsable = async () => {
+      try {
+        console.log("Buscando responsable con id", recurso.responsable.id);
+        const response = await getResponsable(recurso.responsable.id);
+        
+        if (response?.data?.result?.nombre) {
+          console.log("Nombre completo:", response.data.result.nombre);
+          setResponsable(response.data.result.nombre);
+        } else {
+          setResponsable("No encontrado");
+        }
+      } catch (error) {
+        console.error("Error obteniendo responsable:", error);
+        setResponsable("Error al obtener");
+      }
     };
-  });*/
-  const getImageSource = (image) => {
-    if (typeof image === 'string') {
-      return { uri: image };
-    }
-    return image;
-  };
+
+    fetchResponsable();
+  }, [recurso]); // Dependencia actualizada
 
   return (
     <Modal visible={modalVisible} transparent animationType="slide">
       <View style={styles.modalContainer}>
-        {/*<PanGestureHandler onGestureEvent={handleGestureEvent}>*/}
-          <View style={[styles.modalContent, modalHeight]}>
-            {recurso ? (
-              <>
-                <Text style={styles.modalTitle}>Recurso Encontrado</Text>
-                <Text style={styles.modalText}>Código: {recurso.codigo}</Text>
-                <Text style={styles.modalText}>Nombre: {recurso.nombre}</Text>
-                <Text style={styles.modalText}>Marca: {recurso.marca}</Text>
-                <Text style={styles.modalText}>Modelo: {recurso.modelo}</Text>
-                <Text style={styles.modalText}>Número de Serie: {recurso.nSerie}</Text>
-              </>
-            ) : (
-              <Text style={[styles.modalText, {alignSelf: 'center',} ]}>No se encontró ningún recurso.</Text>
-            )}
-            <View style={{ flex: 1, justifyContent: "flex-end", alignItems: "center", width: '100%' }}>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => {
-                  setModalVisible(false);
-                }}
-              >
-                <Text style={styles.closeButtonText}>Cerrar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        {/*</PanGestureHandler>*/}
+        <View style={styles.modalContent}>
+          {recurso && recurso.codigo ? (
+            <>
+              <Text style={styles.modalTitle}>Recurso Encontrado</Text>
+              <Text style={styles.modalText}>Código: {recurso.codigo || 'NA'}</Text>
+              <Text style={styles.modalText}>Nombre: {recurso.descripcion || "Sin descripción"}</Text>
+              <Text style={styles.modalText}>Marca: {recurso.marca || "NA"}</Text>
+              <Text style={styles.modalText}>Modelo: {recurso.modelo || "NA"}</Text>
+              <Text style={styles.modalText}>Número de Serie: {recurso.numeroSerie || "NA"}</Text>
+              <Text style={styles.modalText}>Responsable: {responsable || "No encontrado"}</Text>
+            </>
+          ) : (
+            <Text style={[styles.modalText, { alignSelf: 'center' }]}>
+              No se encontró ningún recurso.
+            </Text>
+          )}
+
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setModalVisible(false)}
+          >
+            <Text style={styles.closeButtonText}>Cerrar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </Modal>
   );

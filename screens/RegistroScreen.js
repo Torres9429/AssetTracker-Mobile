@@ -255,12 +255,12 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 15,
     justifyContent: "center", // Centra el valor en Android
-    marginTop: 40
+    marginTop: Platform.OS === "ios" ? 40 : 10, // Ajuste de margen solo para Android
 
   },
   pickerContainerIOS: {
     justifyContent: "center", // Centra los valores en iOS
-    margin: Platform.OS === "ios" ? 0 : 0, // Ajuste de margen solo para iOS
+    margin: Platform.OS === "ios" ? 40 : 0, // Ajuste de margen solo para iOS
     alignItems: "flex-start", // Alinea el picker a la izquierda
   },
   picker: {

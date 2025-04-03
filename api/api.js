@@ -17,7 +17,7 @@ console.log('API Base URL:', API_BASE_URL);
 api.interceptors.request.use(
   async (config) => {
     //const token = await getToken();
-    const token = await AsyncStorage.getItem("jwt");
+    const token = await AsyncStorage.getItem("jwt"); // Cambia esto por el nombre correcto de tu token
     console.log("Token obtenido:", token); // Muestra el token obtenido
     if (token) {        
       config.headers.Authorization = `Bearer ${token}`;
@@ -32,11 +32,11 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    console.log("Respuesta de la API:", response);
+    //console.log("Respuesta de la API:", response);
     return response;
   },
   (error) => {
-    console.error("Error en la respuesta de la API:", error.response ? error.response.data : error.message);
+    //console.error("Error en la respuesta de la API:", error.response ? error.response.data : error.message);
     return Promise.reject(error);
   }
 );

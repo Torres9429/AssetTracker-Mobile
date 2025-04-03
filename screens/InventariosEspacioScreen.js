@@ -74,7 +74,7 @@ export default function InventariosEspacioScreen() {
         inventario.fechaCreacion.toLowerCase().includes(search.toLowerCase())
     );
     const handleCardPress = (item) => {
-        navigation.navigate('Recursos', { inventario: item.recursos });
+        navigation.navigate('Recursos', { inventario: item });
     };
 
 
