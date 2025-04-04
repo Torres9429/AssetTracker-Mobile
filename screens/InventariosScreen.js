@@ -175,16 +175,6 @@ export default function InventariosScreen() {
                                         onChangeText={setSearch}
                                     />
                                 </View>
-                                <TouchableOpacity
-                                    style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}
-                                    onPress={() => navigation.navigate('Agregar')}
-                                >
-                                    <Ionicons name="add" size={20} color="white" />
-                                    <Text style={{ color: 'white', fontSize: 16 }}>Nuevo</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={{ backgroundColor: '#152567', left: 10, padding: 12, flexDirection: 'row', borderRadius: 25 }} onPress={() => navigation.navigate('CameraScreen', { onFotoTomada: handleTakePhoto })}>
-                                    <Ionicons name="camera" size={20} color="white" />
-                                </TouchableOpacity>
                             </View>
 
                             <View style={styles.containerData}>
@@ -239,7 +229,7 @@ const styles = StyleSheet.create({
         elevation: 3,
         flex: 1,
         marginRight: 10,
-        maxWidth: '65%',
+        maxWidth: '100%',
         maxHeight: 47,
         minWidth: '40%',
         minHeight: 47,

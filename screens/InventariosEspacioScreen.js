@@ -145,14 +145,14 @@ export default function InventariosEspacioScreen() {
                                         onChangeText={setSearch}
                                     />
                                 </View>
-                                <TouchableOpacity
+                                {<TouchableOpacity
                                     style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}
                                     //onPress={() => navigation.navigate('CrearInventario', { espacio: espacio })}
                                     onPress={handleCreateInventario}
                                 >
                                     <Ionicons name="add" size={20} color="white" />
                                     <Text style={{ color: 'white', fontSize: 16 }}>Nuevo</Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity>}
                             </View>
                             <View style={styles.containerData}>
                                 {/* Inventarios */}
@@ -160,7 +160,7 @@ export default function InventariosEspacioScreen() {
                                 <FlatList
                                     data={filteredInventarios}
                                     renderItem={renderInventario}
-                                    keyExtractor={(inventario) => inventario.fecha}
+                                    keyExtractor={(inventario) => inventario.id}
                                     contentContainerStyle={styles.listContent}
                                     showsVerticalScrollIndicator={false}
                                     numColumns={2}
