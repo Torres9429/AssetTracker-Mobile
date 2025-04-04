@@ -59,7 +59,7 @@ const RegistroScreen = ({ navigation }) => {
       await saveUsuario(savedData);
 
       //console.log("Datos guardados:", savedData);
-      setSuccessMessage("Cuenta egistrada con éxito. Espera a ser validado por un administrador.");
+      setSuccessMessage("Cuenta registrada con éxito. Espera a ser validado por un administrador.");
       setErrorMessage("");
       setNombre("");
       setApellidos("");
