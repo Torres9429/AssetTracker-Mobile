@@ -6,6 +6,7 @@ import InventariosEspacioScreen from '../screens/InventariosEspacioScreen';
 import InventariosScreen from '../screens/InventariosScreen';
 import EscanearScreen from '../screens/EscanearScreen';
 import AgregarRecursoScreen from '../screens/AgregarRecursoScreen';
+import CrearInventarioScreen from '../screens/CrearInventarioScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +37,11 @@ export default function InventariosStack() {
         name="Agregar"
         component={AgregarRecursoScreen}
         options={{ headerShown: false, unmountOnBlur: true }}
+      />
+      <Stack.Screen
+        name="CrearInventario"
+        component={CrearInventarioScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

@@ -2,7 +2,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function CameraComponent() {
   const [facing, setFacing] = useState('back');
@@ -10,12 +10,12 @@ export default function CameraComponent() {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [pictureTaken, setPictureTaken] = useState(false);
   const navigation = useNavigation();
-
+const route = useRoute();
   function toggleCameraFacing() {
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
 
-  async function handlePictureTaken() {
+  /*async function handlePictureTaken() {
     if (cameraRef.current) {
       try {
         const photo = await cameraRef.current.takePictureAsync();
@@ -25,7 +25,49 @@ export default function CameraComponent() {
         console.error("Error taking picture:", error);
       }
     }
-  }
+  }*/
+    /*async function handlePictureTaken() {
+      if (cameraRef.current) {
+        try {
+          
+          const photo = await cameraRef.current.takePictureAsync();
+        console.log("Photo taken:", photo.uri);
+        setPictureTaken(true);
+
+        // Llama al callback pasado desde la pantalla anterior
+        const { onPhotoTaken } = route.params || {};
+        if (onPhotoTaken) {
+          onPhotoTaken(photo.uri);
+        }
+        // Regresa a la pantalla anterior
+        navigation.goBack();
+        } catch (error) {
+          console.error("Error taking picture:", error);
+        }
+      }
+    }*/
+      async function handlePictureTaken() {
+        if (cameraRef.current) {
+          try {
+            const photo = await cameraRef.current.takePictureAsync();
+            console.log("Photo taken:", photo.uri);
+            setPictureTaken(true);
+      
+            // Llama al callback pasado desde la pantalla anterior
+            const { onPhotoTaken } = route.params || {};
+            if (onPhotoTaken) {
+              onPhotoTaken(photo.uri);  // Pasa la URI de la foto al callback
+            }
+      
+            // Regresa a la pantalla anterior
+            navigation.goBack();
+          } catch (error) {
+            console.error("Error taking picture:", error);
+          }
+        }
+      }
+      
+    
 
   return (
     <View style={styles.container}>

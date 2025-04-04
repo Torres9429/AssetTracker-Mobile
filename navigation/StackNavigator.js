@@ -30,6 +30,7 @@ export default function StackNavigator() {
       <Stack.Screen name="CambiarContrasenaScreen" component={CambiarContrasenaScreen}/>
       <Stack.Screen name="Escanear" component={EscanearScreen} options={{ unmountOnBlur: true }}/>
       <Stack.Screen name="CameraScreen" component={CameraComponent}/>
+      
     </Stack.Navigator>
   );
 }

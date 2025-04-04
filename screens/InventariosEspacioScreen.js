@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getInventarios } from '../api/inventariosEspaciosApi';
 import { contarRecursos } from '../api/recursosApi';
+import { saveInventario } from '../api/inventariosApi';
 
 const { width, height } = Dimensions.get('window');
 
@@ -29,6 +30,22 @@ export default function InventariosEspacioScreen() {
     const route = useRoute();
     const { espacio } = route.params;
     const [keyBoardVisible, setKeyBoardVisible] = useState();
+    //const { espacioId } = route.params;  // Recibe el id del espacio
+
+  const handleCreateInventario = async () => {
+    console.log('Espacio ID:', espacio.id);  // Verifica que el id del espacio se recibe correctamente
+    try {
+      // Crear el inventario con el id del espacio
+      const data = { espacio:espacio.id };  // Aquí solo estamos enviando el id del espacio
+      const response = await saveInventario(data);
+      const newInventarioId = response.data.id;  // Suponemos que la respuesta contiene el id del nuevo inventario
+
+      // Redirigir a CrearInventarioScreen con el id del inventario
+      navigation.navigate('CrearInventario', { inventarioId: newInventarioId });
+    } catch (error) {
+      console.error("Error creando inventario:", error);
+    }
+  };
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -128,6 +145,14 @@ export default function InventariosEspacioScreen() {
                                         onChangeText={setSearch}
                                     />
                                 </View>
+                                <TouchableOpacity
+                                    style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}
+                                    //onPress={() => navigation.navigate('CrearInventario', { espacio: espacio })}
+                                    onPress={handleCreateInventario}
+                                >
+                                    <Ionicons name="add" size={20} color="white" />
+                                    <Text style={{ color: 'white', fontSize: 16 }}>Nuevo</Text>
+                                </TouchableOpacity>
                             </View>
                             <View style={styles.containerData}>
                                 {/* Inventarios */}

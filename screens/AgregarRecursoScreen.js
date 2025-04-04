@@ -1,16 +1,85 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, ImageBackground, TouchableOpacity, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ScannerCamera from '../components/ScannerCamera';
+import { getCategoriasRecursos } from '../api/caregoriasRecursos';
+import { getResponsables } from '../api/responsablesApi';
+import { saveRecurso } from '../api/recursosApi';
 
 export default function AgregarRecursoScreen() {
     const [category, setCategory] = useState('');
+    const [responsable, setResponsable] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [marca, setMarca] = useState('');
+    const [numeroSerie, setNumeroSerie] = useState('');
+    const [categorias, setCategorias] = useState([]);
+    const [responsables, setResponsables] = useState([]);
     const [scanned, setScanned] = useState(false);
     const [code, setCode] = useState('');
     const navigation = useNavigation();
     const [key, setKey] = useState(0);
+    const [observaciones, setObservaciones] = useState(''); 
+    const [modelo, setModelo] = useState('');
+
+    const handleSave = async () => {
+        // Validar que al menos uno de los campos (code u observaciones) esté lleno
+        if (!code && !observaciones) {
+            alert("Debes agregar un código o una observación.");
+            return;
+        }
+
+        if (!numeroSerie || !category || !responsable ||!descripcion || !marca || !modelo) {
+            alert("Por favor completa todos los campos obligatorios.");
+            return;
+        }
+
+        // Aquí puedes manejar el guardado del recurso
+        console.log("Código:", code);
+        console.log("Número de Serie:", numeroSerie);
+        console.log("Categoría seleccionada:", category);
+        console.log("Responsable seleccionado:", responsable);
+        console.log("Observaciones:", observaciones);
+        console.log("Descripción:", descripcion);
+        console.log("Marca:", marca);
+        console.log("Modelo:", modelo);
+        navigation.goBack(); // Regresar a la pantalla anterior
+         // Datos del recurso que se va a enviar a la API
+    
+        /*
+         // Datos del recurso que se va a enviar a la API
+    const data = {
+        code,
+        numeroSerie,
+        descripcion,
+        marca,
+        modelo,
+        observaciones,
+        category,
+        responsable,
+    };
+
+    try {
+        // Enviar la solicitud POST para guardar el recurso
+        const response = await saveRecurso(data);
+
+        if (response.status === 200) {
+            alert("Recurso guardado correctamente");
+            // Navegar de vuelta a CrearInventarioScreen después de guardar el recurso
+            //navigation.navigate('CrearInventario');
+            navigation.goBack(); // Regresar a la pantalla anterior
+        } else {
+            alert("Error al guardar el recurso");
+        }
+    } catch (error) {
+        console.error("Error al guardar el recurso:", error);
+        alert("Ocurrió un error al guardar el recurso");
+    }
+        */ 
+
+    };
+
     useFocusEffect(
         useCallback(() => {
             console.log("Pantalla enfocada, reiniciando scanner...");
@@ -24,7 +93,30 @@ export default function AgregarRecursoScreen() {
         }, [])
     );
 
+    useEffect(() => {
+        // Cargar categorías de recursos
+        const fetchCategorias = async () => {
+            try {
+                const response = await getCategoriasRecursos();
+                setCategorias(response.data.result || []);
+            } catch (error) {
+                console.error("Error al obtener las categorías de recursos:", error);
+            }
+        };
 
+        // Cargar responsables
+        const fetchResponsables = async () => {
+            try {
+                const response = await getResponsables();
+                setResponsables(response.data.result || []);
+            } catch (error) {
+                console.error("Error al obtener los responsables:", error);
+            }
+        };
+
+        fetchCategorias();
+        fetchResponsables();
+    }, []);
 
     const handleBarCodeScanned = (event) => {
         if (!event || !event.data) {
@@ -34,8 +126,6 @@ export default function AgregarRecursoScreen() {
         setScanned(true);
         setCode(event.data);
     };
-
-
 
     return (
         <ImageBackground source={require('../assets/backgroundSecondary.png')} style={styles.container} resizeMode='cover'>
@@ -69,24 +159,64 @@ export default function AgregarRecursoScreen() {
                             value={code}
                             onChangeText={setCode}
                         />
+                        <Text style={styles.textInput}>Número de Serie</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Número de Serie"
+                            value={numeroSerie}
+                            onChangeText={setNumeroSerie}
+                        />
                         <Text style={styles.textInput}>Descripción</Text>
-                        <TextInput style={styles.input} placeholder="Descripción" />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Descripción" 
+                            value={descripcion}
+                            onChangeText={setDescripcion}
+                            />
                         <Text style={styles.textInput}>Marca</Text>
-                        <TextInput style={styles.input} placeholder="Marca" />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Marca"
+                            value={marca}
+                            onChangeText={setMarca}
+                        />
                         <Text style={styles.textInput}>Modelo</Text>
-                        <TextInput style={styles.input} placeholder="Modelo" />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Modelo" 
+                            value={modelo}
+                            onChangeText={setModelo}
+                        />
                         <Text style={styles.textInput}>Observaciones</Text>
-                        <TextInput style={styles.input} placeholder="Observaciones" />
+                        <TextInput 
+                            style={styles.input} 
+                            placeholder="Observaciones" 
+                            value={observaciones}
+                            onChangeText={setObservaciones}
+                        />
                         <Text style={styles.textInput}>Categoría de recurso</Text>
                         <Picker
                             selectedValue={category}
                             onValueChange={(itemValue) => setCategory(itemValue)}
                             style={styles.input}
                         >
-                            <Picker.Item label="Silla" value="Silla" />
-                            <Picker.Item label="Mesa" value="Mesa" />
+                            <Picker.Item label="Selecciona una categoría" value="" />
+                            {categorias.map((categoria) => (
+                                <Picker.Item key={categoria.id} label={categoria.nombre} value={categoria.id} />
+                            ))}
                         </Picker>
-                        <TouchableOpacity style={styles.registerButton}>
+                        <Text style={styles.textInput}>Responsable</Text>
+                        <Picker
+                            selectedValue={responsable}
+                            onValueChange={(itemValue) => setResponsable(itemValue)}
+                            style={styles.input}
+                        >
+                            <Picker.Item label="Selecciona un responsable" value="" />
+                            {responsables.map((resp) => (
+                                <Picker.Item key={resp.id} label={`${resp.nombre} ${resp.apellido}`} value={resp.id} />
+                            ))}
+                        </Picker>
+                        <TouchableOpacity style={styles.registerButton} onPress={handleSave}>
                             <Text style={styles.registerButtonText}>Guardar</Text>
                         </TouchableOpacity>
                     </View>

@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
         await AsyncStorage.setItem("user", JSON.stringify(user));
         setUser(user);
         navigation.navigate("Main");
+        setError(null);
       } else {
         //console.error("Token o usuario no disponibles en la respuesta.");
         setError("Credenciales incorrectas");

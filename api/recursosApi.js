@@ -11,3 +11,6 @@ export const getRecursoId = async (id) => {
 export const contarRecursos = async () => {
     return await api.get(`${endpoint}/count`)
 }
+export const saveRecurso = async (data) => {
+    return await api.post(`${endpoint}/save`, data);
+};

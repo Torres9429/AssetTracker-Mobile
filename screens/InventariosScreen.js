@@ -57,59 +57,66 @@ export default function InventariosScreen() {
         );
     }*/
 
-        useEffect(() => {
-            console.log('Inventario ID recibido:', inventario.id);
-            if (!inventario || !inventario.id) {
-                console.error('Error: El parámetro inventario no está definido correctamente.');
-                return;
-            }
-        
-            const fetchEspacios = async () => {
-                try {
-                    const recursosResponse = await getRecursoId(inventario.id);
-                    const allRecursosResponse = recursosResponse.data.result || [];
-                    console.log('Recursos recibidos:', allRecursosResponse);
-                    setRecursos(allRecursosResponse || []);
-        
-                    // Iterar sobre los recursos para obtener el responsable
-                    for (const recurso of allRecursosResponse) {
-                        if (recurso.responsable && recurso.responsable.id) {
-                            try {
-                                console.log("Buscando responsable con id", recurso.responsable.id);
-                                const response = await getResponsable(recurso.responsable.id);
-        
-                                if (response?.data?.result?.nombre) {
-                                    console.log("Nombre completo del responsable:", response.data.result.nombre);
-                                    setResponsable(response.data.result.nombre);
-                                } else {
-                                    setResponsable("No encontrado");
-                                }
-                            } catch (error) {
-                                console.error("Error obteniendo responsable:", error);
-                                setResponsable("Error al obtener");
+    useEffect(() => {
+        console.log('Inventario ID recibido:', inventario.id);
+        if (!inventario || !inventario.id) {
+            console.error('Error: El parámetro inventario no está definido correctamente.');
+            return;
+        }
+
+        const fetchEspacios = async () => {
+            try {
+                const response = await getRecursos();
+                const allRecursosResponse = response.data.result || []; // Accede a la propiedad "result"
+                console.log("Recursos obtenidos:", allRecursosResponse);
+
+                // Filtra los recursos por el inventario seleccionado
+                const filteredRecursos = allRecursosResponse.filter(
+                    (recurso) => inventario.id === recurso.inventarioLevantado.id
+                );
+
+                console.log('Recursos filtrados:', filteredRecursos);
+                setRecursos(filteredRecursos); // Guarda los recursos filtrados en el estado
+
+                // Iterar sobre los recursos para obtener el responsable
+                for (const recurso of filteredRecursos) {
+                    if (recurso.responsable && recurso.responsable.id) {
+                        try {
+                            console.log("Buscando responsable con id", recurso.responsable.id);
+                            const response = await getResponsable(recurso.responsable.id);
+
+                            if (response?.data?.result?.nombre) {
+                                console.log("Nombre completo del responsable:", response.data.result.nombre);
+                                setResponsable(response.data.result.nombre);
+                            } else {
+                                setResponsable("No encontrado");
                             }
-                        } else {
-                            console.log("El recurso no tiene un responsable asociado.");
+                        } catch (error) {
+                            console.error("Error obteniendo responsable:", error);
+                            setResponsable("Error al obtener");
                         }
+                    } else {
+                        //console.log("El recurso no tiene un responsable asociado.");
                     }
-                } catch (error) {
-                    console.error('Error al obtener los Recursos:', error);
-                } finally {
-                    setLoading(false);
                 }
-            };
-        
-            fetchEspacios();
-        }, [inventario.id]);
+            } catch (error) {
+                //console.error('Error al obtener los Recursos:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEspacios();
+    }, [inventario.id]);
 
 
-        const filteredInventarios = recursos.filter((recurso) => {
-            const codigo = recurso.codigo ? recurso.codigo.toLowerCase() : '';
-            const descripcion = recurso.descripcion ? recurso.descripcion.toLowerCase() : '';
-            const searchText = search.toLowerCase();
-          
-            return codigo.includes(searchText) || descripcion.includes(searchText);
-          });
+    const filteredInventarios = recursos.filter((recurso) => {
+        const codigo = recurso.codigo ? recurso.codigo.toLowerCase() : '';
+        const descripcion = recurso.descripcion ? recurso.descripcion.toLowerCase() : '';
+        const searchText = search.toLowerCase();
+
+        return codigo.includes(searchText) || descripcion.includes(searchText);
+    });
 
     const handleToggleDetails = (index) => {
         if (expandedIndex === index) {
@@ -175,7 +182,7 @@ export default function InventariosScreen() {
                                     <Ionicons name="add" size={20} color="white" />
                                     <Text style={{ color: 'white', fontSize: 16 }}>Nuevo</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={{ backgroundColor: '#152567', left: 10, padding: 12, flexDirection: 'row', borderRadius: 25 }} onPress={() => navigation.navigate('CameraScreen')}>
+                                <TouchableOpacity style={{ backgroundColor: '#152567', left: 10, padding: 12, flexDirection: 'row', borderRadius: 25 }} onPress={() => navigation.navigate('CameraScreen', { onFotoTomada: handleTakePhoto })}>
                                     <Ionicons name="camera" size={20} color="white" />
                                 </TouchableOpacity>
                             </View>
