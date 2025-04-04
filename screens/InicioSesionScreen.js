@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, SafeAreaView, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 
@@ -9,14 +9,6 @@ const InicioSesionScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const { handleLogin, error } = useContext(AuthContext);
 
-  //const { handleLogin } = useContext(AuthContext);
-  /*const handleLogin = () => {
-    if (email === '2' && password === '1') {
-      navigation.navigate('Main');
-    } else {
-      alert('Correo o contraseña incorrectos');
-    }
-  };*/
   const handleCorreoChange = (e) => {
     setEmail(e.target.value);
   };
@@ -36,66 +28,68 @@ const InicioSesionScreen = ({ navigation }) => {
   };
 
   return (
-    <ImageBackground
-      source={require("../assets/welcomeBackground.png")}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <View style={styles.container}>
-          <View style={styles.card}>
-            <Text style={styles.title}>Iniciar Sesión</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons name="mail" size={24} color="#aaa" style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Correo electrónico"
-                placeholderTextColor="#aaa"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-              />
-            </View>
-            <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed" size={24} color="#aaa" style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Contraseña"
-                placeholderTextColor="#aaa"
-                secureTextEntry={!showPassword}
-                value={password}
-                onChangeText={setPassword}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons name={showPassword ? "eye" : "eye-off"} size={24} color="#aaa" style={styles.icon} />
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Entrar</Text>
-            </TouchableOpacity>
-            {error && (
-              <Text style={styles.errorText}>{error}</Text>
-            )}
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require("../assets/welcomeBackground.png")}
+        style={styles.background}
+        resizeMode="cover"
+      >
 
-            <Text style={styles.signUpText}>
-              ¿No tienes una cuenta? <Text style={styles.link} onPress={() => navigation.navigate("SignUp")}>Regístrate</Text>
-            </Text>
-            {/*<View style={styles.dividerContainer}>
-              <View style={styles.line} />
-              <Text style={styles.dividerText}>¿Olvidaste tu contraseña?</Text>
-              <View style={styles.line} />
-            </View>*/}
-            <View style={styles.line} />
-            <Text style={styles.signUpText}>
-              ¿Olvidaste tu contraseña? <Text style={styles.link} onPress={() => navigation.navigate("RecuperarContra")}>Recuperar contraseña</Text>
-            </Text>
-          </View>
-        </View>
-      </SafeAreaView>
-    </ImageBackground>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="white" />
+            </TouchableOpacity>
+            <View style={styles.container}>
+              <View style={styles.card}>
+                <Text style={styles.title}>Iniciar Sesión</Text>
+                <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ width: "100%", paddingBottom: 50 }}>
+                  <View style={styles.inputContainer}>
+                    <Ionicons name="mail" size={24} color="#aaa" style={styles.icon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Correo electrónico"
+                      placeholderTextColor="#aaa"
+                      keyboardType="email-address"
+                      value={email}
+                      onChangeText={setEmail}
+                    />
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <Ionicons name="lock-closed" size={24} color="#aaa" style={styles.icon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Contraseña"
+                      placeholderTextColor="#aaa"
+                      secureTextEntry={!showPassword}
+                      value={password}
+                      onChangeText={setPassword}
+                    />
+                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                      <Ionicons name={showPassword ? "eye" : "eye-off"} size={24} color="#aaa" style={styles.icon} />
+                    </TouchableOpacity>
+                  </View>
+                  {error && (
+                    <Text style={styles.errorText}>{error}</Text>
+                  )}
+                  <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                    <Text style={styles.buttonText}>Entrar</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.signUpText}>
+                    ¿No tienes una cuenta? <Text style={styles.link} onPress={() => navigation.navigate("SignUp")}>Regístrate</Text>
+                  </Text>
+                  <View style={styles.line} />
+                  <Text style={styles.signUpText}>
+                    ¿Olvidaste tu contraseña? <Text style={styles.link} onPress={() => navigation.navigate("RecuperarContra")}>Recuperar contraseña</Text>
+                  </Text>
+                </ScrollView>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </ImageBackground >
+    </SafeAreaView>
+
   );
 };
 
@@ -113,6 +107,10 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     width: "100%",
+    bottom: 0,
+    paddingBottom: 0,
+    height: "100%",
+    marginBottom: 0,
   },
   backButton: {
     position: "absolute",
@@ -127,7 +125,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 50,
     borderTopRightRadius: 50,
     padding: 25,
-    paddingTop: 50,
+    paddingTop: 45,
     alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -138,7 +136,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     color: "#2B50EC",
-    marginBottom: 50,
+    marginBottom: 40,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -208,7 +206,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 10,
   },
-  
+
 
 });
 

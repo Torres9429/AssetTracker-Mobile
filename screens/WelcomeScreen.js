@@ -10,12 +10,13 @@ const WelcomeScreen = ({ navigation }) => {
   };
 
   return (
+    <SafeAreaView style={styles.safeArea}>
     <ImageBackground
       source={require("../assets/welcomeBackground.png")}
       style={styles.background}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.safeArea}>
+      
         <View style={styles.container}>
           <View style={styles.textContainer}>
             <Text style={styles.title}>¡Bienvenido!</Text>
@@ -56,8 +57,9 @@ const WelcomeScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
+        </ImageBackground>
       </SafeAreaView>
-    </ImageBackground>
+    
   );
 };
 
@@ -66,6 +68,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+    paddingBottom: 0,
   },
   safeArea: {
     flex: 1,

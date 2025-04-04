@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { getEdificios } from '../api/edificios'; // Importa la función de la API
+import { getEdificios } from '../api/edificios';
 
 const { width, height } = Dimensions.get('window');
 
@@ -90,49 +90,54 @@ export default function EdificiosScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={{ flex: 1, height: keyBoardVisible ? height : '100%' }}>
-          <ImageBackground
-            source={require('../assets/backgroundSecondary.png')}
-            style={styles.container}
-            //resizeMode={keyBoardVisible ? 'cover' : 'cover'}
-            imageStyle={{ width: keyBoardVisible ? '100%' : width, height: keyBoardVisible ? height : '100%' }}
-          >
-            {/* Header */}
-            <View style={styles.header}>
-              <View style={styles.searchBarContainer}>
-                <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
-                <TextInput
-                  style={styles.searchBar}
-                  placeholder="Buscar edificio..."
-                  placeholderTextColor="#999"
-                  value={search}
-                  onChangeText={setSearch}
+
+    <View style={{ flex: 1, height: keyBoardVisible ? height : '100%', }}>
+      <ImageBackground
+        source={require('../assets/backgroundSecondary.png')}
+        style={styles.container}
+        //resizeMode={keyBoardVisible ? 'cover' : 'cover'}
+        imageStyle={{ width: keyBoardVisible ? '100%' : width, height: keyBoardVisible ? height : '100%' }}
+      >
+        <KeyboardAvoidingView
+          style={{ flex: 1, height: keyBoardVisible ? height : '100%' }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={{ flex: 1 }}>
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={styles.searchBarContainer}>
+                  <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
+                  <TextInput
+                    style={styles.searchBar}
+                    placeholder="Buscar edificio..."
+                    placeholderTextColor="#999"
+                    value={search}
+                    onChangeText={setSearch}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.containerData}>
+                {/* Edificios */}
+                <Text style={styles.sectionTitle}>Edificios</Text>
+                <FlatList
+                  data={filteredEdificios}
+                  renderItem={renderEdificio}
+                  keyExtractor={(edificio) => edificio.id.toString()}
+                  contentContainerStyle={styles.listContent}
+                  showsVerticalScrollIndicator={false}
+                  numColumns={2}
+                  columnWrapperStyle={{ justifyContent: 'space-between' }}
                 />
               </View>
             </View>
+          </TouchableWithoutFeedback>
 
-            <View style={styles.containerData}>
-              {/* Edificios */}
-              <Text style={styles.sectionTitle}>Edificios</Text>
-              <FlatList
-                data={filteredEdificios}
-                renderItem={renderEdificio}
-                keyExtractor={(edificio) => edificio.id.toString()}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-                numColumns={2}
-                columnWrapperStyle={{ justifyContent: 'space-between' }}
-              />
-            </View>
-          </ImageBackground>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </ImageBackground>
+    </View>
+
   );
 }
 

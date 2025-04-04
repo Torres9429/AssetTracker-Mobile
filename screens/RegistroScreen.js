@@ -14,26 +14,36 @@ import axios from "axios";
 import { KeyboardAvoidingView } from "react-native";
 
 const RegistroScreen = ({ navigation }) => {
-  const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedRole, setSelectedRole] = useState();
   const [nombre, setNombre] = useState('');
   const [apellidos, setApellidos] = useState('');
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const validateEmail = (email) => {
     const re = /\S+@\S+\.\S+/;
     return re.test(email);
   };
+  const validatePassword = (password) => {
+    const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    return re.test(password);
+  };
 
   const handleSave = async () => {
     if (!nombre || !apellidos || !correo || !password || !selectedRole) {
-      Alert.alert("Error", "Todos los campos son obligatorios.");
+      setErrorMessage("Por favor completa todos los campos.");
       return;
     }
 
     if (!validateEmail(correo)) {
-      Alert.alert("Error", "Ingresa un correo válido.");
+      setErrorMessage("Correo electrónico no válido.");
+      return;
+    }
+    if (!validatePassword(password)) {
+      setErrorMessage("La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.");
       return;
     }
 
@@ -47,23 +57,19 @@ const RegistroScreen = ({ navigation }) => {
 
     try {
       await saveUsuario(savedData);
-      /*const response = await axios.post(
-        "https://3a76hppbug.execute-api.us-east-1.amazonaws.com/usuarios/save",
-        savedData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-          },
-        }
-      );*/
-      console.log("Datos guardados:", savedData);
-      console.log("Usuario guardado:", response.data);
-      Alert.alert("Éxito", "Usuario registrado correctamente.");
-      navigation.navigate("SignIn");
+
+      //console.log("Datos guardados:", savedData);
+      setSuccessMessage("Cuenta egistrada con éxito. Espera a ser validado por un administrador.");
+      setErrorMessage("");
+      setNombre("");
+      setApellidos("");
+      setCorreo("");
+      setPassword("");
+      setSelectedRole(null);
     } catch (error) {
-      Alert.alert("Error", "Hubo un problema al registrar el usuario.");
-      console.error("Error al guardar usuario:", error);
+      setErrorMessage("Puede que este correo ya haya sido registrado. Por favor intenta nuevamente.");
+      setSuccessMessage("");
+      //console.error("Error al guardar usuario:", error);
     }
   };
 
@@ -79,59 +85,59 @@ const RegistroScreen = ({ navigation }) => {
               <View style={styles.card}>
                 <Text style={styles.title}>Registrarse</Text>
                 <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ width: "100%", paddingBottom: 50 }}>
-                <View style={styles.inputContainer}>
-                  <Ionicons name="person" size={24} color="#aaa" style={styles.icon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Nombre(s)"
-                    placeholderTextColor="#aaa"
-                    value={nombre}
-                    onChangeText={setNombre}
-                  />
-                </View>
+                  <View style={styles.inputContainer}>
+                    <Ionicons name="person" size={24} color="#aaa" style={styles.icon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Nombre(s)"
+                      placeholderTextColor="#aaa"
+                      value={nombre}
+                      onChangeText={setNombre}
+                    />
+                  </View>
 
-                <View style={styles.inputContainer}>
-                  <Ionicons name="person" size={24} color="#aaa" style={styles.icon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Apellidos"
-                    placeholderTextColor="#aaa"
-                    value={apellidos}
-                    onChangeText={setApellidos}
-                  />
-                </View>
+                  <View style={styles.inputContainer}>
+                    <Ionicons name="person" size={24} color="#aaa" style={styles.icon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Apellidos"
+                      placeholderTextColor="#aaa"
+                      value={apellidos}
+                      onChangeText={setApellidos}
+                    />
+                  </View>
 
-                <View style={styles.inputContainer}>
-                  <Ionicons name="mail" size={24} color="#aaa" style={styles.icon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Correo"
-                    placeholderTextColor="#aaa"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={correo}
-                    onChangeText={setCorreo}
-                  />
-                </View>
+                  <View style={styles.inputContainer}>
+                    <Ionicons name="mail" size={24} color="#aaa" style={styles.icon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Correo"
+                      placeholderTextColor="#aaa"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      value={correo}
+                      onChangeText={setCorreo}
+                    />
+                  </View>
 
-                <View style={styles.inputContainer}>
-                  <Ionicons name="lock-closed" size={24} color="#aaa" style={styles.icon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Contraseña"
-                    placeholderTextColor="#aaa"
-                    secureTextEntry={!showPassword}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={password}
-                    onChangeText={setPassword}
-                  />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                    <Ionicons name={showPassword ? "eye" : "eye-off"} size={24} color="#aaa" style={styles.icon} />
-                  </TouchableOpacity>
-                </View>
-                {/*Platform.OS === "ios" ? (
+                  <View style={styles.inputContainer}>
+                    <Ionicons name="lock-closed" size={24} color="#aaa" style={styles.icon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Contraseña"
+                      placeholderTextColor="#aaa"
+                      secureTextEntry={!showPassword}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      value={password}
+                      onChangeText={setPassword}
+                    />
+                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                      <Ionicons name={showPassword ? "eye" : "eye-off"} size={24} color="#aaa" style={styles.icon} />
+                    </TouchableOpacity>
+                  </View>
+                  {/*Platform.OS === "ios" ? (
                   <TouchableOpacity style={styles.pickerContainer} onPress={() => setModalVisible(true)}>
                     <Text style={styles.pickerText}>{selectedRole ? selectedRole : "Selecciona un rol"}</Text>
                   </TouchableOpacity>
@@ -144,31 +150,33 @@ const RegistroScreen = ({ navigation }) => {
                     </Picker>
                   </View>
                 )*/}
-                <View style={[styles.pickerContainer,]}>
-                  <Ionicons name="briefcase" size={24} color="#aaa" style={styles.icon} />
-                  <Picker
-                    selectedValue={selectedRole}
-                    style={[styles.picker, {backfaceVisibility: "hidden",}]}
-                    itemStyle={{
-                      fontSize: 16,
-                      color: "#333",
-                    }}
-                    mode="dropdown"
-                    onValueChange={(itemValue) => setSelectedRole(itemValue)}
-                  >
-                    <Picker.Item label="Selecciona un rol" value={null} />
-                    <Picker.Item label="Administrador" value="ROLE_ADMIN_ACCESS" />
-                    <Picker.Item label="Inspector" value="ROLE_INSPECTOR_ACCESS" />
-                  </Picker>
-                </View>
+                  <View style={[styles.pickerContainer,]}>
+                    <Ionicons name="briefcase" size={24} color="#aaa" style={styles.icon} />
+                    <Picker
+                      selectedValue={selectedRole}
+                      style={[styles.picker, { backfaceVisibility: "hidden", }]}
+                      itemStyle={{
+                        fontSize: 16,
+                        color: "#333",
+                      }}
+                      mode="dropdown"
+                      onValueChange={(itemValue) => setSelectedRole(itemValue)}
+                    >
+                      <Picker.Item label="Selecciona un rol" value={null} />
+                      <Picker.Item label="Administrador" value="ROLE_ADMIN_ACCESS" />
+                      <Picker.Item label="Inspector" value="ROLE_INSPECTOR_ACCESS" />
+                    </Picker>
+                  </View>
 
-                <TouchableOpacity style={styles.button} onPress={handleSave}>
-                  <Text style={styles.buttonText}>Registrarse</Text>
-                </TouchableOpacity>
-                
-                <Text style={styles.signInText}>
-                  ¿Ya tienes una cuenta? <Text style={styles.link} onPress={() => navigation.navigate("SignIn")}>Acceder</Text>
-                </Text>
+                  {errorMessage ? <Text style={{ color: "red", marginBottom: 10 }}>{errorMessage}</Text> : null}
+                  {successMessage ? <Text style={{ color: "green", marginBottom: 10 }}>{successMessage}</Text> : null}
+                  <TouchableOpacity style={styles.button} onPress={handleSave}>
+                    <Text style={styles.buttonText}>Registrarse</Text>
+                  </TouchableOpacity>
+
+                  <Text style={styles.signInText}>
+                    ¿Ya tienes una cuenta? <Text style={styles.link} onPress={() => navigation.navigate("SignIn")}>Acceder</Text>
+                  </Text>
                 </ScrollView>
               </View>
             </View>

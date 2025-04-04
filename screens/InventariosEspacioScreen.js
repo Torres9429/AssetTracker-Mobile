@@ -99,51 +99,55 @@ export default function InventariosEspacioScreen() {
 
 
     return (
-        <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{ flex: 1 }}>
-                    <ImageBackground
-                        source={require('../assets/backgroundSecondary.png')}
-                        style={styles.container}
-                        resizeMode={keyBoardVisible ? 'cover' : 'cover'}
-                        imageStyle={{ width: keyBoardVisible ? width : 'auto', height: keyBoardVisible ? height : '100%' }}
-                    >
-                        {/* Header */}
-                        <View style={styles.header}>
-                            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                                <Ionicons name="arrow-back" size={24} color="white" />
-                            </TouchableOpacity>
-                            <View style={styles.searchBarContainer}>
-                                <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
-                                <TextInput
-                                    style={styles.searchBar}
-                                    placeholder="Buscar inventario..."
-                                    placeholderTextColor="#999"
-                                    value={search}
-                                    onChangeText={setSearch}
+
+        <View style={{ flex: 1 }}>
+            <ImageBackground
+                source={require('../assets/backgroundSecondary.png')}
+                style={styles.container}
+                resizeMode={keyBoardVisible ? 'cover' : 'cover'}
+                imageStyle={{ width: keyBoardVisible ? width : 'auto', height: keyBoardVisible ? height : '100%' }}
+            >
+                <KeyboardAvoidingView
+                    style={{ flex: 1 }}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                >
+                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                        <View style={{ flex: 1 }}>
+                            {/* Header */}
+                            <View style={styles.header}>
+                                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                                    <Ionicons name="arrow-back" size={24} color="white" />
+                                </TouchableOpacity>
+                                <View style={styles.searchBarContainer}>
+                                    <Ionicons name="search" size={20} color="#416FDF" style={styles.searchIcon} />
+                                    <TextInput
+                                        style={styles.searchBar}
+                                        placeholder="Buscar inventario..."
+                                        placeholderTextColor="#999"
+                                        value={search}
+                                        onChangeText={setSearch}
+                                    />
+                                </View>
+                            </View>
+                            <View style={styles.containerData}>
+                                {/* Inventarios */}
+                                <Text style={styles.sectionTitle}>Inventarios</Text>
+                                <FlatList
+                                    data={filteredInventarios}
+                                    renderItem={renderInventario}
+                                    keyExtractor={(inventario) => inventario.fecha}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                    numColumns={2}
+                                    columnWrapperStyle={{ justifyContent: 'space-between' }}
                                 />
                             </View>
                         </View>
-                        <View style={styles.containerData}>
-                            {/* Inventarios */}
-                            <Text style={styles.sectionTitle}>Inventarios</Text>
-                            <FlatList
-                                data={filteredInventarios}
-                                renderItem={renderInventario}
-                                keyExtractor={(inventario) => inventario.fecha}
-                                contentContainerStyle={styles.listContent}
-                                showsVerticalScrollIndicator={false}
-                                numColumns={2}
-                                columnWrapperStyle={{ justifyContent: 'space-between' }}
-                            />
-                        </View>
-                    </ImageBackground>
-                </View>
-            </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
+                    </TouchableWithoutFeedback>
+                </KeyboardAvoidingView>
+            </ImageBackground>
+        </View>
+
     );
 }
 

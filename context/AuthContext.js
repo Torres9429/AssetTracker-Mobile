@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
+  const [error, setError] = useState(null);
 
 
   const handleLogin = async (correo, password) => {
@@ -30,10 +31,12 @@ export const AuthProvider = ({ children }) => {
         setUser(user);
         navigation.navigate("Main");
       } else {
-        console.error("Token o usuario no disponibles en la respuesta.");
+        //console.error("Token o usuario no disponibles en la respuesta.");
+        setError("Credenciales incorrectas");
       }
     } catch (error) {
-      console.error("Error en el inicio de sesión:", error);
+      //console.error("Error en el inicio de sesión:", error);
+      setError("Correo o contraseña incorrectos");
     }
   };
 
@@ -44,7 +47,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, handleLogin, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, handleLogin, logout, isLoading, error }}>
       {children}
     </AuthContext.Provider>
   );

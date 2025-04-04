@@ -37,7 +37,7 @@ export default function PerfilScreen() {
           console.error("No se encontraron datos de usuario.");
         }
       } catch (error) {
-        console.error("Error al obtener los datos del usuario:", error);
+        //console.error("Error al obtener los datos del usuario:", error);
       } finally {
         setLoading(false);
       }
