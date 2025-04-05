@@ -18,6 +18,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { contarRecursos, getRecursoId, getRecursos } from '../api/recursosApi';
 import { getResponsable } from '../api/responsablesApi';
+import { getEdificiosId } from '../api/edificios';
+import { getEspacios, getEspaciosId } from '../api/espaciosApi';
 
 const { width, height } = Dimensions.get('window');
 
@@ -32,6 +34,9 @@ export default function InventariosScreen() {
     const { inventario } = route.params || {};
 
     const [keyBoardVisible, setKeyBoardVisible] = useState();
+    const [espacioNombre, setEspacioNombre] = useState('');
+    const [edificioNombre, setEdificioNombre] = useState('');
+
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -57,59 +62,74 @@ export default function InventariosScreen() {
         );
     }*/
 
-    useEffect(() => {
-        console.log('Inventario ID recibido:', inventario.id);
-        if (!inventario || !inventario.id) {
-            console.error('Error: El parámetro inventario no está definido correctamente.');
-            return;
-        }
-
-        const fetchEspacios = async () => {
-            try {
-                const response = await getRecursos();
-                const allRecursosResponse = response.data.result || []; // Accede a la propiedad "result"
-                console.log("Recursos obtenidos:", allRecursosResponse);
-
-                // Filtra los recursos por el inventario seleccionado
-                const filteredRecursos = allRecursosResponse.filter(
-                    (recurso) => inventario.id === recurso.inventarioLevantado.id
-                );
-
-                console.log('Recursos filtrados:', filteredRecursos);
-                setRecursos(filteredRecursos); // Guarda los recursos filtrados en el estado
-
-                // Iterar sobre los recursos para obtener el responsable
-                for (const recurso of filteredRecursos) {
-                    if (recurso.responsable && recurso.responsable.id) {
-                        try {
-                            console.log("Buscando responsable con id", recurso.responsable.id);
-                            const response = await getResponsable(recurso.responsable.id);
-
-                            if (response?.data?.result?.nombre) {
-                                console.log("Nombre completo del responsable:", response.data.result.nombre);
-                                setResponsable(response.data.result.nombre);
-                            } else {
-                                setResponsable("No encontrado");
-                            }
-                        } catch (error) {
-                            console.error("Error obteniendo responsable:", error);
-                            setResponsable("Error al obtener");
-                        }
-                    } else {
-                        //console.log("El recurso no tiene un responsable asociado.");
-                    }
+                
+        useEffect(() => {
+            const fetchData = async () => {
+                if (!inventario || !inventario.id) {
+                    console.error('Error: El parámetro inventario no está definido correctamente.');
+                    return;
                 }
-            } catch (error) {
-                //console.error('Error al obtener los Recursos:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchEspacios();
-    }, [inventario.id]);
-
-
+        
+                try {
+                    console.log('Inventario ID recibido:', inventario.id);
+        
+                    // Obtener el espacio
+                    const espacioId = inventario.espacio.id;
+                    const espacioResponse = await getEspaciosId(espacioId);
+                    const espacioData = espacioResponse.data.result;
+                    setEspacioNombre(espacioData.nombre);
+                    console.log('Espacio:', espacioData);
+        
+                    // Obtener el edificio
+                    const edificioId = espacioData.edificio.id;
+                    console.log('Edificio ID recibido:', edificioId);
+                    const edificioResponse = await getEdificiosId(edificioId);
+                    const edificioData = edificioResponse.data.result;
+                    setEdificioNombre(edificioData.nombre);
+                    console.log('Edificio:', edificioData);
+        
+                    // Obtener recursos del inventario
+                    const response = await getRecursoId(inventario.id);
+                    //console.log('Recursos obtenidos:', response.data.result);
+                    if (response && response.data && response.data.result) {
+                        console.log(response.data.result);
+                    } else {
+                        console.log("No se encontró 'result' en la respuesta");
+                    }
+                    const allRecursosResponse = response.data.result || [];
+        
+                    const filteredRecursos = allRecursosResponse.filter(
+                        (recurso) => inventario.id === recurso.inventarioLevantado.id
+                    );
+        
+                    const recursosConResponsables = await Promise.all(
+                        filteredRecursos.map(async (recurso) => {
+                            if (recurso.responsable && recurso.responsable.id) {
+                                try {
+                                    const response = await getResponsable(recurso.responsable.id);
+                                    const nombre = response?.data?.result?.nombre || 'No encontrado';
+                                    return { ...recurso, nombreResponsable: nombre };
+                                } catch {
+                                    return { ...recurso, nombreResponsable: 'Error al obtener' };
+                                }
+                            } else {
+                                return { ...recurso, nombreResponsable: 'Sin responsable' };
+                            }
+                        })
+                    );
+        
+                    setRecursos(recursosConResponsables);
+                } catch (error) {
+                    //console.error('Error al obtener datos del inventario:', error);
+                    setRecursos([]);  // Establecer recursos como vacío en caso de error
+                } finally {
+                    setLoading(false);
+                }
+            };
+        
+            fetchData();
+        }, [inventario.id]);
+        
     const filteredInventarios = recursos.filter((recurso) => {
         const codigo = recurso.codigo ? recurso.codigo.toLowerCase() : '';
         const descripcion = recurso.descripcion ? recurso.descripcion.toLowerCase() : '';
@@ -140,7 +160,9 @@ export default function InventariosScreen() {
                     <Text style={styles.detalleTexto}>Modelo: {item.modelo || 'Desconocido'}</Text>
                     <Text style={styles.detalleTexto}>Número de serie: {item.numeroSerie || 'Desconocido'}</Text>
                     <Text style={styles.detalleTexto}>Observaciones: {item.observaciones || 'Sin observaciones'}</Text>
-                    <Text style={styles.detalleTexto}>Responsable: {responsable || 'No encontrado'}</Text>
+                    <Text style={styles.detalleTexto}>Responsable: {item.nombreResponsable || 'No encontrado'}</Text>
+                    <Text style={styles.detalleTexto}>Espacio: {espacioNombre || 'Sin espacio'}</Text>
+                    <Text style={styles.detalleTexto}>Edificio: {edificioNombre || 'Sin edificio'}</Text>
                 </View>
             )}
         </View>

@@ -8,6 +8,12 @@ export const getInventarios = async () => {
 export const getInventarioId = async (id) => {
     return await api.get(`${endpoint}/${id}`);
 };
+export const contarInventarios = async () => {
+    return await api.get(`${endpoint}/count`);
+};
+export const getInventariosEspacio = async (id) => {
+    return await api.get(`${endpoint}/espacio/${id}`);
+};
 export const saveInventario = async (data) => {
     return await api.post(`${endpoint}/save`, data);
 }

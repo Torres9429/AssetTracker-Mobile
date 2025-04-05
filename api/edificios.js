@@ -6,9 +6,8 @@ export const getEdificios = async () => {
   return await api.get(`${endpoint}/all`);
 };
 
-
 export const getEdificiosId = async (id) => {
-    return await api.get(`${endpoint}/${id}`);
+  return await api.get(`${endpoint}/${id}`);
 };
 
 export const contarEdificios = async () => {

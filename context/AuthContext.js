@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }) => {
   
         const user = { username, role, userId };
         await AsyncStorage.setItem("user", JSON.stringify(user));
+        await AsyncStorage.setItem("userId", String(userId));
         setUser(user);
         navigation.navigate("Main");
         navigation.reset({
@@ -47,6 +48,10 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await removeToken();
+    await AsyncStorage.removeItem("user");
+    await AsyncStorage.removeItem("userId");
+    await AsyncStorage.removeItem("expiration");
+    await AsyncStorage.clear();
     setUser(null);
     navigation.navigate("Welcome");
   };
