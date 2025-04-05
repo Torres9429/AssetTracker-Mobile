@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import * as FileSystem from 'expo-file-system';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, TextInput, Dimensions, ImageBackground } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { saveInventario } from '../api/inventariosApi';  // Asegúrate de importar la API de inventarios
-import { saveRecurso, getRecursos } from '../api/recursosApi';  // Asegúrate de importar la API de recursos
+import { saveInventario, updateInventario } from '../api/inventariosApi';  // Asegúrate de importar la API de inventarios
+import { saveRecurso, getRecursos, getRecursoId } from '../api/recursosApi';  // Asegúrate de importar la API de recursos
 
 const { width, height } = Dimensions.get('window');
 
@@ -12,22 +13,26 @@ export default function CrearInventarioScreen() {
     const [newRecurso, setNewRecurso] = useState(''); // Estado para nuevo recurso
 
     const route = useRoute();
-    const { espacioId, photoUri  } = route.params;  // Obtener el id del espacio
-   // const { photoUri } = route.params || {};
+    const { espacioId, photoUri, inventarioId  } = route.params; 
+    const [expandedIndex, setExpandedIndex] = useState(null);  // Estado para manejar el índice expandido
 
     const [recursos, setRecursos] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation();
-
+    console.log("Inventario creado con ID (recibido):", inventarioId);  // Verifica que el id del inventario se recibe correctamente
+    
     useFocusEffect(
         React.useCallback(() => {
             const fetchRecursos = async () => {
                 try {
-                    const response = await getRecursos();
-                    setRecursos(response.data);
+                    const response = await getRecursoId(inventarioId);
+                    console.log("Recursos obtenidos:", response.data.result);
+                    setRecursos(response.data.result || []); // Asegúrate de que sea un array
                     setLoading(false);
                 } catch (error) {
-                    console.error("Error obteniendo los recursos:", error);
+                    //console.error("Error obteniendo los recursos:", error);
+                    setLoading(false);
+
                 }
             };
     
@@ -40,32 +45,46 @@ export default function CrearInventarioScreen() {
             fetchRecursos();
         }, [photoUri])  // Dependencia para recargar si cambia la foto
     );
-    
 
-    const handleSaveInventario = async () => {
-        if (photo) {
-            // Lógica para guardar la foto (por ejemplo, subirla a un servidor o guardarla en el inventario)
-            console.log('Guardando foto en el inventario:', photo);
-            try {
-                // Crear un nuevo inventario con el id del espacio
-                const data = { espacioId };  // Aquí solo se necesita el id del espacio
-                const response = await saveInventario(data);
-    
-                if (response.data && response.data.id) {
-                    const inventarioId = response.data.id;
-    
-                    // Redirigir a CrearInventarioScreen con el nuevo id de inventario
-                    navigation.navigate('CrearInventarioScreen', { inventarioId });
-                }
-            } catch (error) {
-                console.error("Error creando el inventario:", error);
+const handleSaveInventario = async () => {
+    if (foto) {
+        console.log('Guardando foto en el inventario:', foto);
+        try {
+            console.log('URI de la foto:', foto.uri);
+            console.log('Tipo de la foto:', foto.type);
+            console.log('Nombre de la foto:', foto.name);
+            // Leer la foto como base64
+            const fileData = await FileSystem.readAsStringAsync(foto.uri, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            const file = {
+                uri: foto.uri,
+                type: foto.type || 'image/jpeg', // Asegúrate del tipo
+                name: foto.name || 'foto.jpg',
+                base64: fileData, // Agregar base64 al archivo
+            };
+            console.log('Datos del archivo:', file);
+
+            const response = await updateInventario(inventarioId, file);
+            console.log('Respuesta de actualizar inventario:', response.data);
+
+            if (response.data && response.data.result) {
+                const updatedId = response.data.result.id;
+                console.log('Inventario actualizado con ID:', updatedId);
+
+                navigation.goBack(); // Regresar a la pantalla anterior
             }
-            // Aquí deberías hacer la llamada API o lógica para guardar el recurso
-          } else {
-            alert('No se ha tomado una foto.');
-          }
-        
-    };
+        } catch (error) {
+            console.error("Error actualizando el inventario:", error);
+        }
+    } else {
+        alert('No se ha tomado una foto.');
+    }
+};
+
+    
+    
 
     const handleSaveRecurso = async (recursoData) => {
         try {
@@ -92,6 +111,27 @@ export default function CrearInventarioScreen() {
             alert("Por favor ingrese un nombre para el recurso.");
         }
     };
+    const renderRecurso = ({ item, index }) => (
+            <View style={styles.recursoContainer}>
+                <TouchableOpacity onPress={() => handleToggleDetails(index)}>
+                    <Text style={styles.recursoTexto}>
+                        {item.codigo || 'Sin código'} - {item.descripcion || 'Sin descripción'}
+                    </Text>
+                </TouchableOpacity>
+                {expandedIndex === index && (
+                    <View style={styles.detalleContainer}>
+                        <Text style={styles.detalleTexto}>Código: {item.codigo || 'Sin código'}</Text>
+                        <Text style={styles.detalleTexto}>Marca: {item.marca || 'Desconocida'}</Text>
+                        <Text style={styles.detalleTexto}>Modelo: {item.modelo || 'Desconocido'}</Text>
+                        <Text style={styles.detalleTexto}>Número de serie: {item.numeroSerie || 'Desconocido'}</Text>
+                        <Text style={styles.detalleTexto}>Observaciones: {item.observaciones || 'Sin observaciones'}</Text>
+                        <Text style={styles.detalleTexto}>Responsable: {item.nombreResponsable || 'No encontrado'}</Text>
+                        <Text style={styles.detalleTexto}>Espacio: {espacioNombre || 'Sin espacio'}</Text>
+                        <Text style={styles.detalleTexto}>Edificio: {edificioNombre || 'Sin edificio'}</Text>
+                    </View>
+                )}
+            </View>
+        );
 
     return (
         <View style={{ flex: 1 }}>
@@ -112,7 +152,7 @@ export default function CrearInventarioScreen() {
                     />
                     <TouchableOpacity
                         style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}
-                        onPress={() => navigation.navigate('Agregar')}
+                        onPress={() => navigation.navigate('Agregar', {inventarioId: inventarioId})}
                     >
                         <Ionicons name="add" size={20} color="white" />
                         <Text style={{ color: 'white', fontSize: 16 }}>Recurso</Text>
@@ -124,12 +164,12 @@ export default function CrearInventarioScreen() {
 
                 <FlatList
                     data={recursos}
-                    renderItem={({ item }) => <Text style={styles.recurso}>{item.nombre}</Text>}
+                    renderItem={renderRecurso}
                     keyExtractor={(item, index) => index.toString()}
                 />
 
                 {/* Muestra la foto si se ha tomado */}
-                {foto && <Image source={{ uri: foto }} style={styles.foto} />}
+                {foto && <Image source={{ uri: foto.uri }} style={styles.foto} />}
 
 
                 <TouchableOpacity style={styles.saveButton} onPress={handleSaveInventario}>
@@ -189,5 +229,44 @@ const styles = StyleSheet.create({
     saveText: {
         color: 'white',
         fontSize: 16,
+    },
+    recursoContainer: {
+        alignSelf: 'flex-start',
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+        padding: 10,
+        marginTop: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        elevation: 3,
+        width: '100%',
+    },
+    recursoTexto: {
+        fontSize: 20,
+        color: '#152567',
+        marginTop: 4,
+        fontWeight: '600',
+    },
+    detalleContainer: {
+        paddingLeft: 10,
+        paddingRight: 10,
+        paddingTop: 5,
+        paddingBottom: 5,
+    },
+    detalleTexto: {
+        fontSize: 16,
+        color: '#333',
+        marginBottom: 6,
+        fontWeight: '400',
+    },containerData: {
+        flex: 1,
+        marginBottom: 80,
+        width: '100%',
+    },
+    listContent: {
+        paddingBottom: 30,
+        paddingHorizontal: 10,
     },
 });

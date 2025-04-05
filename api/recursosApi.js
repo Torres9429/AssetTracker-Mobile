@@ -8,6 +8,9 @@ export const getRecursos = async () => {
 export const getRecursoId = async (id) => {
     return await api.get(`${endpoint}/inventario/${id}`);
 };
+export const getRecursoCodigo = async (codigo) => {
+    return await api.get(`${endpoint}/${codigo}`);
+};
 export const contarRecursos = async () => {
     return await api.get(`${endpoint}/count`)
 }

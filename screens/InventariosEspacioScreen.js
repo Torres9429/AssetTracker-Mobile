@@ -13,6 +13,7 @@ import {
     Keyboard,
     Platform,
     TouchableWithoutFeedback,
+    Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -30,22 +31,35 @@ export default function InventariosEspacioScreen() {
     const route = useRoute();
     const { espacio } = route.params;
     const [keyBoardVisible, setKeyBoardVisible] = useState();
-    //const { espacioId } = route.params;  // Recibe el id del espacio
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
 
-  const handleCreateInventario = async () => {
-    console.log('Espacio ID:', espacio.id);  // Verifica que el id del espacio se recibe correctamente
-    try {
-      // Crear el inventario con el id del espacio
-      const data = { espacio:espacio.id };  // Aquí solo estamos enviando el id del espacio
-      const response = await saveInventario(data);
-      const newInventarioId = response.data.id;  // Suponemos que la respuesta contiene el id del nuevo inventario
+    const handleImagePress = (imageUrl) => {
+        setSelectedImage(imageUrl);
+        setModalVisible(true); // Abre el modal
+    };
 
-      // Redirigir a CrearInventarioScreen con el id del inventario
-      navigation.navigate('CrearInventario', { inventarioId: newInventarioId });
-    } catch (error) {
-      console.error("Error creando inventario:", error);
-    }
-  };
+    const handleCloseModal = () => {
+        setModalVisible(false);
+        setSelectedImage(null);
+    };
+
+
+    const handleCreateInventario = async () => {
+        console.log('Espacio ID:', espacio.id);  // Verifica que el id del espacio se recibe correctamente
+        try {
+            // Crear el inventario con el id del espacio
+            const data = { espacio: espacio.id };  // Aquí solo estamos enviando el id del espacio
+            const response = await saveInventario(data);
+            console.log('Respuesta de crear inventario:', response.data);  // Verifica la respuesta del servidor
+            const newInventarioId = response.data.result.id;  // Suponemos que la respuesta contiene el id del nuevo inventario
+            console.log('Nuevo inventario creado con ID:', newInventarioId);  // Verifica que el nuevo id se recibe correctamente
+            // Redirigir a CrearInventarioScreen con el id del inventario
+            navigation.navigate('CrearInventario', { inventarioId: newInventarioId });
+        } catch (error) {
+            console.error("Error creando inventario:", error);
+        }
+    };
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -103,10 +117,23 @@ export default function InventariosEspacioScreen() {
             month: "long",
             day: "numeric",
         });
+        console.log('Fecha formateada:', fechaFormateada); // Verifica la fecha formateada
+        console.log('Imagen URL:', item.imagenUrl); // Verifica la URL de la imagen
+
 
         return (
             <TouchableOpacity style={styles.inventarioContainer} onPress={() => handleCardPress(item)}>
-                {item.imagen && <Image source={{ uri: item.imagen }} style={styles.inventarioImagen} />}
+
+                {item.imagenUrl ? (
+                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        <TouchableOpacity onPress={() => handleImagePress(item.imagenUrl)}>
+                            <Image source={{ uri: item.imagenUrl }} style={styles.inventarioImagen} />
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <Text>No image available</Text>  // Muestra un mensaje si no hay imagen
+                )}
+
                 <Text style={styles.inventarioFecha}>{fechaFormateada}</Text>
                 {/*<Text style={styles.inventarioCantidad}>{numeroRecursos}</Text>*/}
             </TouchableOpacity>
@@ -167,6 +194,28 @@ export default function InventariosEspacioScreen() {
                                     columnWrapperStyle={{ justifyContent: 'space-between' }}
                                 />
                             </View>
+                            {/* Modal para mostrar la imagen en grande */}
+                            <Modal
+                                visible={modalVisible}
+                                transparent={true}
+                                animationType="fade"
+                                onRequestClose={handleCloseModal}
+                            >
+                                <TouchableOpacity
+                                    style={styles.modalBackground}
+                                    onPress={handleCloseModal}
+                                >
+                                    <View style={styles.modalContainer}>
+                                        {selectedImage && (
+                                            <Image
+                                                source={{ uri: selectedImage }}
+                                                style={styles.modalImage}
+                                            />
+                                        )}
+                                    </View>
+                                </TouchableOpacity>
+                            </Modal>
+
                         </View>
                     </TouchableWithoutFeedback>
                 </KeyboardAvoidingView>
@@ -240,8 +289,8 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     inventarioImagen: {
-        width: 70,
-        height: 70,
+        width: 100,
+        height: 100,
         borderRadius: 12,
     },
     inventarioFecha: {
@@ -255,6 +304,21 @@ const styles = StyleSheet.create({
         color: '#757575',
         fontWeight: '500',
         marginTop: 4,
+    }, 
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    },
+    modalContainer: {
+        width: '90%',
+        height: '80%',
+    },
+    modalImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'contain',
     },
 });
 

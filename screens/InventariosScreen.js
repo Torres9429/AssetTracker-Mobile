@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -15,7 +15,7 @@ import {
     TouchableWithoutFeedback,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { contarRecursos, getRecursoId, getRecursos } from '../api/recursosApi';
 import { getResponsable } from '../api/responsablesApi';
 import { getEdificiosId } from '../api/edificios';
@@ -36,7 +36,7 @@ export default function InventariosScreen() {
     const [keyBoardVisible, setKeyBoardVisible] = useState();
     const [espacioNombre, setEspacioNombre] = useState('');
     const [edificioNombre, setEdificioNombre] = useState('');
-
+    const [modoEdicion, setModoEdicion] = useState(false);
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -62,74 +62,69 @@ export default function InventariosScreen() {
         );
     }*/
 
-                
-        useEffect(() => {
-            const fetchData = async () => {
-                if (!inventario || !inventario.id) {
-                    console.error('Error: El parámetro inventario no está definido correctamente.');
-                    return;
-                }
-        
-                try {
-                    console.log('Inventario ID recibido:', inventario.id);
-        
-                    // Obtener el espacio
-                    const espacioId = inventario.espacio.id;
-                    const espacioResponse = await getEspaciosId(espacioId);
-                    const espacioData = espacioResponse.data.result;
-                    setEspacioNombre(espacioData.nombre);
-                    console.log('Espacio:', espacioData);
-        
-                    // Obtener el edificio
-                    const edificioId = espacioData.edificio.id;
-                    console.log('Edificio ID recibido:', edificioId);
-                    const edificioResponse = await getEdificiosId(edificioId);
-                    const edificioData = edificioResponse.data.result;
-                    setEdificioNombre(edificioData.nombre);
-                    console.log('Edificio:', edificioData);
-        
-                    // Obtener recursos del inventario
-                    const response = await getRecursoId(inventario.id);
-                    //console.log('Recursos obtenidos:', response.data.result);
-                    if (response && response.data && response.data.result) {
-                        console.log(response.data.result);
-                    } else {
-                        console.log("No se encontró 'result' en la respuesta");
+
+        useFocusEffect(
+            useCallback(() => {
+                const fetchData = async () => {
+                    if (!inventario || !inventario.id) {
+                        console.error('Error: El parámetro inventario no está definido correctamente.');
+                        return;
                     }
-                    const allRecursosResponse = response.data.result || [];
         
-                    const filteredRecursos = allRecursosResponse.filter(
-                        (recurso) => inventario.id === recurso.inventarioLevantado.id
-                    );
+                    try {
+                        console.log('Inventario ID recibido:', inventario.id);
         
-                    const recursosConResponsables = await Promise.all(
-                        filteredRecursos.map(async (recurso) => {
-                            if (recurso.responsable && recurso.responsable.id) {
-                                try {
-                                    const response = await getResponsable(recurso.responsable.id);
-                                    const nombre = response?.data?.result?.nombre || 'No encontrado';
-                                    return { ...recurso, nombreResponsable: nombre };
-                                } catch {
-                                    return { ...recurso, nombreResponsable: 'Error al obtener' };
+                        // Obtener el espacio
+                        const espacioId = inventario.espacio.id;
+                        const espacioResponse = await getEspaciosId(espacioId);
+                        const espacioData = espacioResponse.data.result;
+                        setEspacioNombre(espacioData.nombre);
+        
+                        // Obtener el edificio
+                        const edificioId = espacioData.edificio.id;
+                        const edificioResponse = await getEdificiosId(edificioId);
+                        const edificioData = edificioResponse.data.result;
+                        setEdificioNombre(edificioData.nombre);
+        
+                        // Obtener recursos del inventario
+                        const response = await getRecursoId(inventario.id);
+                        const allRecursosResponse = response.data.result || [];
+        
+                        const filteredRecursos = allRecursosResponse.filter(
+                            (recurso) => inventario.id === recurso.inventarioLevantado.id
+                        );
+        
+                        const recursosConResponsables = await Promise.all(
+                            filteredRecursos.map(async (recurso) => {
+                                if (recurso.responsable && recurso.responsable.id) {
+                                    try {
+                                        const response = await getResponsable(recurso.responsable.id);
+                                        const nombre = response?.data?.result?.nombre || 'No encontrado';
+                                        return { ...recurso, nombreResponsable: nombre };
+                                    } catch {
+                                        return { ...recurso, nombreResponsable: 'Error al obtener' };
+                                    }
+                                } else {
+                                    return { ...recurso, nombreResponsable: 'Sin responsable' };
                                 }
-                            } else {
-                                return { ...recurso, nombreResponsable: 'Sin responsable' };
-                            }
-                        })
-                    );
+                            })
+                        );
         
-                    setRecursos(recursosConResponsables);
-                } catch (error) {
-                    //console.error('Error al obtener datos del inventario:', error);
-                    setRecursos([]);  // Establecer recursos como vacío en caso de error
-                } finally {
-                    setLoading(false);
-                }
-            };
+                        setRecursos(recursosConResponsables);
+                    } catch (error) {
+                        setRecursos([]);
+                    } finally {
+                        setLoading(false);
+                    }
+                };
         
-            fetchData();
-        }, [inventario.id]);
+                fetchData();
         
+                // No cleanup needed
+            }, [inventario?.id])
+        );
+        
+
     const filteredInventarios = recursos.filter((recurso) => {
         const codigo = recurso.codigo ? recurso.codigo.toLowerCase() : '';
         const descripcion = recurso.descripcion ? recurso.descripcion.toLowerCase() : '';
@@ -165,6 +160,7 @@ export default function InventariosScreen() {
                     <Text style={styles.detalleTexto}>Edificio: {edificioNombre || 'Sin edificio'}</Text>
                 </View>
             )}
+            
         </View>
     );
 
@@ -197,6 +193,21 @@ export default function InventariosScreen() {
                                         onChangeText={setSearch}
                                     />
                                 </View>
+                                {/* Botones condicionales */}
+                                {!modoEdicion ? (
+                                    <TouchableOpacity onPress={() => setModoEdicion(true)} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25, alignContent: 'center', justifyContent: 'center' }}>
+                                        <Ionicons name="create-outline" size={24} color="white" />
+                                    </TouchableOpacity>
+                                ) : (
+                                    <View style={styles.editActions}>
+                                        <TouchableOpacity onPress={() => navigation.navigate('Agregar', {inventarioId: inventario.id})} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}>
+                                            <Ionicons name="add-circle-outline" size={24} color="white" />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => setModoEdicion(false)} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}>
+                                            <Ionicons name="save-outline" size={24} color="white" />
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
                             </View>
 
                             <View style={styles.containerData}>
@@ -270,6 +281,10 @@ const styles = StyleSheet.create({
         color: 'white',
         marginHorizontal: 20,
         marginTop: 20,
+    },
+    editActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     containerData: {
         flex: 1,

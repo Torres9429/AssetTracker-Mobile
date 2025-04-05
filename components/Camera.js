@@ -50,13 +50,13 @@ const route = useRoute();
         if (cameraRef.current) {
           try {
             const photo = await cameraRef.current.takePictureAsync();
-            console.log("Photo taken:", photo.uri);
+            console.log("Photo taken:", photo);
             setPictureTaken(true);
       
             // Llama al callback pasado desde la pantalla anterior
             const { onPhotoTaken } = route.params || {};
             if (onPhotoTaken) {
-              onPhotoTaken(photo.uri);  // Pasa la URI de la foto al callback
+              onPhotoTaken(photo);  // Pasa la URI de la foto al callback
             }
       
             // Regresa a la pantalla anterior

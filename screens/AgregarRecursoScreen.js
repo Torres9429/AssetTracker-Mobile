@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, ImageBackground, TouchableOpacity, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import ScannerCamera from '../components/ScannerCamera';
 import { getCategoriasRecursos } from '../api/caregoriasRecursos';
 import { getResponsables } from '../api/responsablesApi';
@@ -22,7 +22,11 @@ export default function AgregarRecursoScreen() {
     const [key, setKey] = useState(0);
     const [observaciones, setObservaciones] = useState(''); 
     const [modelo, setModelo] = useState('');
+    const route = useRoute();
+    const { inventarioId } = route.params; // Obtener el id del espacio desde los parámetros de navegación
 
+    console.log("se guardará el inventario con ID:", inventarioId);  // Verifica que el id del inventario se recibe correctamente
+    
     const handleSave = async () => {
         // Validar que al menos uno de los campos (code u observaciones) esté lleno
         if (!code && !observaciones) {
@@ -30,7 +34,7 @@ export default function AgregarRecursoScreen() {
             return;
         }
 
-        if (!numeroSerie || !category || !responsable ||!descripcion || !marca || !modelo) {
+        if (!numeroSerie || !category || !responsable ||!descripcion || !marca || !modelo ||!observaciones) {
             alert("Por favor completa todos los campos obligatorios.");
             return;
         }
@@ -44,25 +48,27 @@ export default function AgregarRecursoScreen() {
         console.log("Descripción:", descripcion);
         console.log("Marca:", marca);
         console.log("Modelo:", modelo);
-        navigation.goBack(); // Regresar a la pantalla anterior
+        //navigation.goBack(); // Regresar a la pantalla anterior
          // Datos del recurso que se va a enviar a la API
     
-        /*
+        
          // Datos del recurso que se va a enviar a la API
     const data = {
-        code,
-        numeroSerie,
-        descripcion,
-        marca,
-        modelo,
-        observaciones,
-        category,
-        responsable,
+        codigo: code,
+        descripcion: descripcion,
+        marca: marca,
+        modelo: modelo,
+        numeroSerie: numeroSerie,
+        observaciones: observaciones,
+        invetariolevantadoid:inventarioId,
+        categoriaRecursoid:category,
+        responsableid: responsable,
     };
 
     try {
         // Enviar la solicitud POST para guardar el recurso
         const response = await saveRecurso(data);
+        console.log("Respuesta de guardar recurso:", response.data); // Verifica la respuesta del servidor
 
         if (response.status === 200) {
             alert("Recurso guardado correctamente");
@@ -76,7 +82,7 @@ export default function AgregarRecursoScreen() {
         console.error("Error al guardar el recurso:", error);
         alert("Ocurrió un error al guardar el recurso");
     }
-        */ 
+        
 
     };
 

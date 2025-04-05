@@ -13,7 +13,7 @@ import edificios from '../data/edificios';
 import CustomModal from "../components/Modal";
 import ScannerCamera from "../components/ScannerCamera";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-import { getRecursos } from "../api/recursosApi";
+import { getRecursoCodigo, getRecursos } from "../api/recursosApi";
 
 export default function EscanearScreen() {
   const [scanned, setScanned] = useState(false);
@@ -56,7 +56,7 @@ export default function EscanearScreen() {
   }
 
   const buscarRecurso = async (codigo) => {
-    const response = await getRecursos();
+   /* const response = await getRecursos();
     const allRecursos = response.data.result || []; // Asegurar que sea un array
     console.log("Recursos obtenidos:", allRecursos);
 
@@ -68,6 +68,13 @@ export default function EscanearScreen() {
       setRecurso(recursoEncontrado); // Guardar el recurso encontrado
       return recursoEncontrado; // Retorna el recurso encontrado
 
+    }*/
+    const response = await getRecursoCodigo(codigo);
+    const recursoEncontrado = response.data.result || []; // Asegurar que sea un array
+    console.log("Recurso encontrado:", recursoEncontrado); // Verifica el recurso encontrado
+    if (recursoEncontrado && recursoEncontrado.length > 0 || recursoEncontrado != null || undefined || "") {
+      setRecurso(recursoEncontrado); // Guardar el recurso encontrado
+      return recursoEncontrado; // Retorna el recurso encontrado
     }
     return null; // Retorna null si no se encontró ningún recurso
 };

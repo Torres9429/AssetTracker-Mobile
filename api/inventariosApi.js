@@ -17,6 +17,23 @@ export const getInventariosEspacio = async (id) => {
 export const saveInventario = async (data) => {
     return await api.post(`${endpoint}/save`, data);
 }
-export const updateInventario = async (id, data) => {
+/*export const updateInventario = async (id, data) => {
     return await api.put(`${endpoint}/update/${id}`, data);
+};*/
+export const updateInventario = async (id, file) => {
+    const formData = new FormData();
+
+    formData.append("id", id); // parte del DTO
+    formData.append("file", {
+        uri: file.uri,
+        type: file.type || "image/jpeg",
+        name: file.name || "foto.jpg",
+    });
+
+    return await api.put(`${endpoint}/update`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 };
+
