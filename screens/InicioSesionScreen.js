@@ -8,6 +8,7 @@ const InicioSesionScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { handleLogin, error } = useContext(AuthContext);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleCorreoChange = (e) => {
     setEmail(e.target.value);
@@ -17,11 +18,22 @@ const InicioSesionScreen = ({ navigation }) => {
     setPassword(e.target.value);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("Formulario enviado con:", { email, password });
-    await handleLogin(email, password);
+  const handleSubmit = async () => {
+    if (!email || !password) {
+      setErrorMessage("Por favor, completa todos los campos.");
+      return;
+    }
+  
+    setErrorMessage(null); // Limpiar mensaje anterior si lo había
+  
+    try {
+      await handleLogin(email, password);
+    } catch (err) {
+      // Si `handleLogin` lanza error, capturarlo aquí
+      setErrorMessage("Correo o contraseña incorrectos."); // o el mensaje que desees
+    }
   };
+  
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -65,8 +77,8 @@ const InicioSesionScreen = ({ navigation }) => {
                       <Ionicons name={showPassword ? "eye" : "eye-off"} size={24} color="#aaa" style={styles.icon} />
                     </TouchableOpacity>
                   </View>
-                  {error && (
-                    <Text style={styles.errorText}>{error}</Text>
+                  {(error || errorMessage) && (
+                    <Text style={styles.errorText}>{error || errorMessage}</Text>
                   )}
                   <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                     <Text style={styles.buttonText}>Entrar</Text>
