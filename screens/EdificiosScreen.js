@@ -14,10 +14,14 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Modal,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { getEdificios } from '../api/edificios';
+import Animated from 'react-native-reanimated';
+import { duplicateInventario } from '../api/inventariosApi';
 
 const { width, height } = Dimensions.get('window');
 
@@ -29,6 +33,7 @@ export default function EdificiosScreen() {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  
 
   const handleImagePress = (imageUrl) => {
     setSelectedImage(imageUrl);
@@ -94,13 +99,24 @@ export default function EdificiosScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <Text style={{height:0}}> </Text>  // Muestra un mensaje si no hay imagen
+        <Text style={{ height: 0 }}> </Text>  // Muestra un mensaje si no hay imagen
       )}
       <Text style={styles.edificioNombre}>{item.nombre}</Text>
       <Text style={styles.edificioPisos}>Pisos: {item.numeroPisos}</Text>
     </TouchableOpacity>
   );
 
+  const handleDuplicate = async () => {
+    try {
+      const response = await duplicateInventario(); // Llama a la API para duplicar el inventario
+      //console.log('Inventario duplicado:', response.data); // Muestra el inventario duplicado en la consola
+      Alert.alert('Éxito', 'Inventario duplicado correctamente', [
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
+      ]); // Muestra una alerta de éxito
+    } catch (error) {
+      console.error('Error al duplicar el inventario:', error); // Maneja el error
+    }
+  };
   // Muestra pantalla de carga si aún no se obtienen los edificios
   if (loading) {
     return (
@@ -137,9 +153,15 @@ export default function EdificiosScreen() {
                     onChangeText={setSearch}
                   />
                 </View>
+                
+                
               </View>
 
               <View style={styles.containerData}>
+              {<TouchableOpacity onPress={handleDuplicate} style={styles.buttonDuplicate}> 
+                  <MaterialCommunityIcons name="content-copy" size={24} color="white" />
+                  <Text style={{ color: 'white', }}>Duplicar último</Text>
+                </TouchableOpacity>}
                 {/* Edificios */}
                 <Text style={styles.sectionTitle}>Edificios</Text>
                 <FlatList
@@ -283,5 +305,24 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
+  },
+  buttonDuplicate: {
+     backgroundColor: '#152567', 
+     padding: 12,  
+     borderRadius: 25, 
+     marginLeft: 5, 
+     justifyContent: 'center', 
+     alignItems: 'center', 
+     position: 'absolute', 
+     right: 20, 
+     alignSelf: 'flex-end', 
+     top: '82%', 
+     flexDirection: 'row', 
+     zIndex: 1,
+     shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 3,
   },
 });

@@ -36,4 +36,7 @@ export const updateInventario = async (id, file) => {
         },
     });
 };
+export const duplicateInventario = async () => {
+    return await api.post(`${endpoint}/duplicate`);
+};
 

@@ -62,7 +62,7 @@ export default function EspaciosScreen() {
                 console.log('Espacios filtrados:', filteredEspacios);
                 setEspacios(filteredEspacios);
             } catch (error) {
-                console.error('Error al obtener los espacios:', error);
+                //console.error('Error al obtener los espacios:', error);
             } finally {
                 setLoading(false);
             }
