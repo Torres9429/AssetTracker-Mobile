@@ -99,7 +99,6 @@ export default function InventariosEspacioScreen() {
 
         fetchEspacios();
     }, [espacio]);
-    const numeroRecursos = contarRecursos();
 
     const filteredInventarios = inventarios.filter((inventario) =>
         inventario.fechaCreacion.toLowerCase().includes(search.toLowerCase())
@@ -131,7 +130,7 @@ export default function InventariosEspacioScreen() {
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    <Text>Imagen no disponible </Text>  // Muestra un mensaje si no hay imagen
+                    <Text style={{height:0}}></Text>  // Muestra un mensaje si no hay imagen
                 )}
 
                 <Text style={styles.inventarioFecha}>{fechaFormateada}</Text>
@@ -173,7 +172,7 @@ export default function InventariosEspacioScreen() {
                                     />
                                 </View>
                                 {<TouchableOpacity
-                                    style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}
+                                    style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25, marginHorizontal: 5 }}
                                     //onPress={() => navigation.navigate('CrearInventario', { espacio: espacio })}
                                     onPress={handleCreateInventario}
                                 >
@@ -234,6 +233,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
     },
     backButton: {
         marginRight: 10,
@@ -290,14 +290,15 @@ const styles = StyleSheet.create({
     },
     inventarioImagen: {
         width: 100,
-        height: 100,
+        height: 70,
         borderRadius: 12,
+        marginBottom: 8,
     },
     inventarioFecha: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
-        marginTop: 8,
+        //marginTop: 8,
     },
     inventarioCantidad: {
         fontSize: 14,

@@ -6,6 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 import { getUsuario } from '../api/usuariosApi';
 import { logout } from '../api/auth.api';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function PerfilScreen() {
   const navigation = useNavigation();
@@ -83,15 +84,18 @@ export default function PerfilScreen() {
         </View>
         <View style={styles.menuContainer}>
           <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EdicionPerfilScreen', { usuario })}>
-            <Ionicons name="create-outline" size={24} color="#416FDF" />
+            {/*<Ionicons name="create-outline" size={24} color="#416FDF" />*/}
+            <MaterialCommunityIcons name="account-edit-outline" size={30} color="#416FDF" />
+            {/*<Text style={styles.menuText}>Editar Perfil</Text>*/}
             <Text style={styles.menuText}>Editar Perfil</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('CambiarContrasenaScreen')}>
+          {/*<TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('CambiarContrasenaScreen')}>
             <Ionicons name="lock-closed-outline" size={24} color="#416FDF" />
             <Text style={styles.menuText}>Cambiar Contraseña</Text>
-          </TouchableOpacity>
+          </TouchableOpacity>*/}
           <TouchableOpacity style={[styles.menuItem]} onPress={logout}>
-            <Ionicons name="log-out-outline" size={24} color="red" />
+            {/*<Ionicons name="log-out-outline" size={30} color="red" />*/}
+            <MaterialCommunityIcons name="logout" size={30} color="red" />
             <Text style={styles.menuText}>Cerrar Sesión</Text>
           </TouchableOpacity>
         </View>
@@ -104,6 +108,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#416FDF',
+    
   },
   headerContainer: {
     flexDirection: 'row',

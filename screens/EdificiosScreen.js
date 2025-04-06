@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   edificioImagen: {
-    width: 70,
+    width: 100,
     height: 70,
     borderRadius: 12,
   },

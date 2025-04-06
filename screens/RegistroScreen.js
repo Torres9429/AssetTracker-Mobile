@@ -159,7 +159,7 @@ const RegistroScreen = ({ navigation }) => {
                         fontSize: 16,
                         color: "#333",
                       }}
-                      mode="dropdown"
+                      mode= "dropdown"
                       onValueChange={(itemValue) => setSelectedRole(itemValue)}
                     >
                       <Picker.Item label="Selecciona un rol" value={null} />
@@ -297,9 +297,10 @@ const styles = StyleSheet.create({
   },
   signInText: {
     color: "#555",
-    marginTop: 10,
+    marginTop: 20,
     marginBottom: 50,
     alignSelf: "center",
+    marginVertical: 20,
   },
 });
 

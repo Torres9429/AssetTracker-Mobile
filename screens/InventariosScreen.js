@@ -20,6 +20,7 @@ import { contarRecursos, getRecursoId, getRecursos } from '../api/recursosApi';
 import { getResponsable } from '../api/responsablesApi';
 import { getEdificiosId } from '../api/edificios';
 import { getEspacios, getEspaciosId } from '../api/espaciosApi';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -196,15 +197,17 @@ export default function InventariosScreen() {
                                 {/* Botones condicionales */}
                                 {!modoEdicion ? (
                                     <TouchableOpacity onPress={() => setModoEdicion(true)} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25, alignContent: 'center', justifyContent: 'center' }}>
-                                        <Ionicons name="create-outline" size={24} color="white" />
+                                        {/*<Ionicons name="pencil" size={24} color="white" />*/}
+                                        <MaterialCommunityIcons name="pencil" size={24} color="white" />
                                     </TouchableOpacity>
                                 ) : (
                                     <View style={styles.editActions}>
-                                        <TouchableOpacity onPress={() => navigation.navigate('Agregar', {inventarioId: inventario.id})} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}>
-                                            <Ionicons name="add-circle-outline" size={24} color="white" />
+                                        <TouchableOpacity onPress={() => navigation.navigate('Agregar', {inventarioId: inventario.id})} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25, marginRight: 5 }}>
+                                            <Ionicons name="add" size={24} color="white" />
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => setModoEdicion(false)} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}>
-                                            <Ionicons name="save-outline" size={24} color="white" />
+                                            {/*<Ionicons name="save-outline" size={24} color="white" />*/}
+                                            <MaterialCommunityIcons name="content-save-edit" size={24} color="white" />
                                         </TouchableOpacity>
                                     </View>
                                 )}

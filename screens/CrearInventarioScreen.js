@@ -11,16 +11,16 @@ const { width, height } = Dimensions.get('window');
 export default function CrearInventarioScreen() {
     const [foto, setFoto] = useState(null); // Estado para guardar la foto
     const [newRecurso, setNewRecurso] = useState(''); // Estado para nuevo recurso
-
+    const [search, setSearch] = useState('');
     const route = useRoute();
-    const { espacioId, photoUri, inventarioId  } = route.params; 
+    const { espacioId, photoUri, inventarioId } = route.params;
     const [expandedIndex, setExpandedIndex] = useState(null);  // Estado para manejar el índice expandido
 
     const [recursos, setRecursos] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation();
     console.log("Inventario creado con ID (recibido):", inventarioId);  // Verifica que el id del inventario se recibe correctamente
-    
+
     useFocusEffect(
         React.useCallback(() => {
             const fetchRecursos = async () => {
@@ -35,56 +35,56 @@ export default function CrearInventarioScreen() {
 
                 }
             };
-    
+
             // Si hay una foto nueva, actualiza el estado
             if (photoUri) {
                 setFoto(photoUri);  // Asegúrate de que esto sea la URI y no el objeto completo.
                 console.log('Foto tomada:', photoUri);  // Revisa si la URI de la foto está llegando correctamente.
             }
-    
+
             fetchRecursos();
         }, [photoUri])  // Dependencia para recargar si cambia la foto
     );
 
-const handleSaveInventario = async () => {
-    if (foto) {
-        console.log('Guardando foto en el inventario:', foto);
-        try {
-            console.log('URI de la foto:', foto.uri);
-            console.log('Tipo de la foto:', foto.type);
-            console.log('Nombre de la foto:', foto.name);
-            // Leer la foto como base64
-            const fileData = await FileSystem.readAsStringAsync(foto.uri, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
+    const handleSaveInventario = async () => {
+        if (foto) {
+            console.log('Guardando foto en el inventario:', foto);
+            try {
+                console.log('URI de la foto:', foto.uri);
+                console.log('Tipo de la foto:', foto.type);
+                console.log('Nombre de la foto:', foto.name);
+                // Leer la foto como base64
+                const fileData = await FileSystem.readAsStringAsync(foto.uri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
 
-            const file = {
-                uri: foto.uri,
-                type: foto.type || 'image/jpeg', // Asegúrate del tipo
-                name: foto.name || 'foto.jpg',
-                base64: fileData, // Agregar base64 al archivo
-            };
-            console.log('Datos del archivo:', file);
+                const file = {
+                    uri: foto.uri,
+                    type: foto.type || 'image/jpeg', // Asegúrate del tipo
+                    name: foto.name || 'foto.jpg',
+                    base64: fileData, // Agregar base64 al archivo
+                };
+                console.log('Datos del archivo:', file);
 
-            const response = await updateInventario(inventarioId, file);
-            console.log('Respuesta de actualizar inventario:', response.data);
+                const response = await updateInventario(inventarioId, file);
+                console.log('Respuesta de actualizar inventario:', response.data);
 
-            if (response.data && response.data.result) {
-                const updatedId = response.data.result.id;
-                console.log('Inventario actualizado con ID:', updatedId);
+                if (response.data && response.data.result) {
+                    const updatedId = response.data.result.id;
+                    console.log('Inventario actualizado con ID:', updatedId);
 
-                navigation.goBack(); // Regresar a la pantalla anterior
+                    navigation.goBack(); // Regresar a la pantalla anterior
+                }
+            } catch (error) {
+                console.error("Error actualizando el inventario:", error);
             }
-        } catch (error) {
-            console.error("Error actualizando el inventario:", error);
+        } else {
+            alert('No se ha tomado una foto.');
         }
-    } else {
-        alert('No se ha tomado una foto.');
-    }
-};
+    };
 
-    
-    
+
+
 
     const handleSaveRecurso = async (recursoData) => {
         try {
@@ -99,39 +99,38 @@ const handleSaveInventario = async () => {
     const handleTakePhoto = (uri) => {
         console.log('Foto recibida en CrearInventarioScreen:', uri);
         setFoto(uri);  // Guardar la URI de la foto en el estado
-      };
-      
-
-    const agregarRecurso = () => {
-        if (newRecurso.trim()) {
-            const recursoData = { nombre: newRecurso }; // Aquí puedes agregar más detalles del recurso
-            handleSaveRecurso(recursoData);
-            setNewRecurso('');
-        } else {
-            alert("Por favor ingrese un nombre para el recurso.");
-        }
     };
+
+
+    const filteredInventarios = recursos.filter((recurso) => {
+        const codigo = recurso.codigo ? recurso.codigo.toLowerCase() : '';
+        const descripcion = recurso.descripcion ? recurso.descripcion.toLowerCase() : '';
+        const searchText = search.toLowerCase();
+
+        return codigo.includes(searchText) || descripcion.includes(searchText);
+    });
+
     const renderRecurso = ({ item, index }) => (
-            <View style={styles.recursoContainer}>
-                <TouchableOpacity onPress={() => handleToggleDetails(index)}>
-                    <Text style={styles.recursoTexto}>
-                        {item.codigo || 'Sin código'} - {item.descripcion || 'Sin descripción'}
-                    </Text>
-                </TouchableOpacity>
-                {expandedIndex === index && (
-                    <View style={styles.detalleContainer}>
-                        <Text style={styles.detalleTexto}>Código: {item.codigo || 'Sin código'}</Text>
-                        <Text style={styles.detalleTexto}>Marca: {item.marca || 'Desconocida'}</Text>
-                        <Text style={styles.detalleTexto}>Modelo: {item.modelo || 'Desconocido'}</Text>
-                        <Text style={styles.detalleTexto}>Número de serie: {item.numeroSerie || 'Desconocido'}</Text>
-                        <Text style={styles.detalleTexto}>Observaciones: {item.observaciones || 'Sin observaciones'}</Text>
-                        <Text style={styles.detalleTexto}>Responsable: {item.nombreResponsable || 'No encontrado'}</Text>
-                        <Text style={styles.detalleTexto}>Espacio: {espacioNombre || 'Sin espacio'}</Text>
-                        <Text style={styles.detalleTexto}>Edificio: {edificioNombre || 'Sin edificio'}</Text>
-                    </View>
-                )}
-            </View>
-        );
+        <View style={styles.recursoContainer}>
+            <TouchableOpacity onPress={() => handleToggleDetails(index)}>
+                <Text style={styles.recursoTexto}>
+                    {item.codigo || 'Sin código'} - {item.descripcion || 'Sin descripción'}
+                </Text>
+            </TouchableOpacity>
+            {expandedIndex === index && (
+                <View style={styles.detalleContainer}>
+                    <Text style={styles.detalleTexto}>Código: {item.codigo || 'Sin código'}</Text>
+                    <Text style={styles.detalleTexto}>Marca: {item.marca || 'Desconocida'}</Text>
+                    <Text style={styles.detalleTexto}>Modelo: {item.modelo || 'Desconocido'}</Text>
+                    <Text style={styles.detalleTexto}>Número de serie: {item.numeroSerie || 'Desconocido'}</Text>
+                    <Text style={styles.detalleTexto}>Observaciones: {item.observaciones || 'Sin observaciones'}</Text>
+                    <Text style={styles.detalleTexto}>Responsable: {item.nombreResponsable || 'No encontrado'}</Text>
+                    <Text style={styles.detalleTexto}>Espacio: {espacioNombre || 'Sin espacio'}</Text>
+                    <Text style={styles.detalleTexto}>Edificio: {edificioNombre || 'Sin edificio'}</Text>
+                </View>
+            )}
+        </View>
+    );
 
     return (
         <View style={{ flex: 1 }}>
@@ -151,21 +150,23 @@ const handleSaveInventario = async () => {
                         onChangeText={setNewRecurso}
                     />
                     <TouchableOpacity
-                        style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}
-                        onPress={() => navigation.navigate('Agregar', {inventarioId: inventarioId})}
+                        style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25, marginHorizontal: 5 }}
+                        onPress={() => navigation.navigate('Agregar', { inventarioId: inventarioId })}
                     >
                         <Ionicons name="add" size={20} color="white" />
                         <Text style={{ color: 'white', fontSize: 16 }}>Recurso</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ backgroundColor: '#152567', left: 10, padding: 12, flexDirection: 'row', borderRadius: 25 }} onPress={() => navigation.navigate('CameraScreen', { onPhotoTaken: handleTakePhoto })}>
+                    <TouchableOpacity style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }} onPress={() => navigation.navigate('CameraScreen', { onPhotoTaken: handleTakePhoto })}>
                         <Ionicons name="camera" size={20} color="white" />
                     </TouchableOpacity>
                 </View>
 
                 <FlatList
-                    data={recursos}
+                    data={filteredInventarios}
                     renderItem={renderRecurso}
                     keyExtractor={(item, index) => index.toString()}
+                    contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={false}
                 />
 
                 {/* Muestra la foto si se ha tomado */}
@@ -216,15 +217,16 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginVertical: 10,
         alignSelf: 'center',
-        bottom:70,
+        bottom: 70,
     },
     saveButton: {
-        backgroundColor: '#416FDF',
+        backgroundColor: '#152567',
         padding: 12,
         borderRadius: 25,
         alignItems: 'center',
         marginTop: 20,
         bottom: 80,
+        marginHorizontal: 20,
     },
     saveText: {
         color: 'white',
@@ -260,7 +262,7 @@ const styles = StyleSheet.create({
         color: '#333',
         marginBottom: 6,
         fontWeight: '400',
-    },containerData: {
+    }, containerData: {
         flex: 1,
         marginBottom: 80,
         width: '100%',

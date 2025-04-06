@@ -17,10 +17,6 @@ const InicioSesionScreen = ({ navigation }) => {
     setPassword(e.target.value);
   };
 
-  /*const onSubmit = () => {
-    handleLogin(email, password); // Asegúrate de pasar los valores, no el evento
-    
-  };*/
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Formulario enviado con:", { email, password });
@@ -78,10 +74,10 @@ const InicioSesionScreen = ({ navigation }) => {
                   <Text style={styles.signUpText}>
                     ¿No tienes una cuenta? <Text style={styles.link} onPress={() => navigation.navigate("SignUp")}>Regístrate</Text>
                   </Text>
-                  <View style={styles.line} />
+                  {/*<View style={styles.line} />
                   <Text style={styles.signUpText}>
                     ¿Olvidaste tu contraseña? <Text style={styles.link} onPress={() => navigation.navigate("RecuperarContra")}>Recuperar contraseña</Text>
-                  </Text>
+                  </Text>*/}
                 </ScrollView>
               </View>
             </View>
@@ -178,6 +174,7 @@ const styles = StyleSheet.create({
     color: "#555",
     //marginTop: 20,
     marginVertical: 20,
+    textAlign: "center",
   },
   dividerContainer: {
     flexDirection: "row",
