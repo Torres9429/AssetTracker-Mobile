@@ -13,6 +13,7 @@ import {
   Keyboard,
   Platform,
   TouchableWithoutFeedback,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -26,6 +27,18 @@ export default function EdificiosScreen() {
   const [loading, setLoading] = useState(true); // Estado para manejar la carga
   const [keyBoardVisible, setKeyBoardVisible] = useState(false); // Inicializado correctamente
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleImagePress = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setModalVisible(true); // Abre el modal
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedImage(null);
+  };
 
   // Escucha eventos del teclado para ocultar/mostrar el teclado
   useEffect(() => {
@@ -74,7 +87,15 @@ export default function EdificiosScreen() {
   // Renderiza un edificio individual
   const renderEdificio = ({ item }) => (
     <TouchableOpacity style={styles.edificioContainer} onPress={() => handleCardPress(item)}>
-      {item.urlImagen && <Image source={{ uri: item.urlImagen }} style={styles.edificioImagen} />}
+      {item.urlImagen ? (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity onPress={() => handleImagePress(item.urlImagen)}>
+            <Image source={{ uri: item.urlImagen }} style={styles.edificioImagen} />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <Text style={{height:0}}> </Text>  // Muestra un mensaje si no hay imagen
+      )}
       <Text style={styles.edificioNombre}>{item.nombre}</Text>
       <Text style={styles.edificioPisos}>Pisos: {item.numeroPisos}</Text>
     </TouchableOpacity>
@@ -131,6 +152,27 @@ export default function EdificiosScreen() {
                   columnWrapperStyle={{ justifyContent: 'space-between' }}
                 />
               </View>
+              {/* Modal para mostrar la imagen en grande */}
+              <Modal
+                visible={modalVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={handleCloseModal}
+              >
+                <TouchableOpacity
+                  style={styles.modalBackground}
+                  onPress={handleCloseModal}
+                >
+                  <View style={styles.modalContainer}>
+                    {selectedImage && (
+                      <Image
+                        source={{ uri: selectedImage }}
+                        style={styles.modalImage}
+                      />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              </Modal>
             </View>
           </TouchableWithoutFeedback>
 
@@ -226,5 +268,20 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 18,
     color: '#333',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  modalContainer: {
+    width: '90%',
+    height: '80%',
+  },
+  modalImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });

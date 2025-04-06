@@ -131,7 +131,7 @@ export default function InventariosEspacioScreen() {
                         </TouchableOpacity>
                     </View>
                 ) : (
-                    <Text>No image available</Text>  // Muestra un mensaje si no hay imagen
+                    <Text>Imagen no disponible </Text>  // Muestra un mensaje si no hay imagen
                 )}
 
                 <Text style={styles.inventarioFecha}>{fechaFormateada}</Text>
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
         color: '#757575',
         fontWeight: '500',
         marginTop: 4,
-    }, 
+    },
     modalBackground: {
         flex: 1,
         justifyContent: 'center',
