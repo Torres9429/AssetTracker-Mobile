@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -16,7 +16,7 @@ import {
     Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getInventarios } from '../api/inventariosEspaciosApi';
 import { contarRecursos } from '../api/recursosApi';
 import { saveInventario } from '../api/inventariosApi';
@@ -75,30 +75,32 @@ export default function InventariosEspacioScreen() {
             keyboardDidHideListener.remove();
         };
     }, []);
-    useEffect(() => {
-        console.log('Espacio ID recibido:', espacio.id);
-        const fetchEspacios = async () => {
+    useFocusEffect(
+        useCallback(() => {
+          console.log('Espacio ID recibido:', espacio.id);
+          
+          const fetchEspacios = async () => {
             try {
-                const response = await getInventarios();
-                const allInventarios = response.data.result || [];
-                console.log('Inventarios recibidos:', allInventarios);
-
-                // Filtra los espacios por el edificio seleccionado
-                const filteredEspacios = allInventarios.filter(
-                    (inventario) => inventario.espacio.id === espacio.id
-                );
-
-                console.log('Inventarios filtrados:', filteredEspacios);
-                setInventarios(filteredEspacios);
+              const response = await getInventarios();
+              const allInventarios = response.data.result || [];
+              console.log('Inventarios recibidos:', allInventarios);
+      
+              const filteredEspacios = allInventarios.filter(
+                (inventario) => inventario.espacio.id === espacio.id
+              );
+      
+              console.log('Inventarios filtrados:', filteredEspacios);
+              setInventarios(filteredEspacios);
             } catch (error) {
-                console.error('Error al obtener los Inventarios:', error);
+              console.error('Error al obtener los Inventarios:', error);
             } finally {
-                setLoading(false);
+              setLoading(false);
             }
-        };
-
-        fetchEspacios();
-    }, [espacio]);
+          };
+      
+          fetchEspacios();
+        }, [espacio])
+      );
 
     const filteredInventarios = inventarios.filter((inventario) =>
         inventario.fechaCreacion.toLowerCase().includes(search.toLowerCase())

@@ -13,6 +13,7 @@ import {
     Keyboard,
     Platform,
     TouchableWithoutFeedback,
+    Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -27,6 +28,19 @@ export default function EspaciosScreen() {
     const [loading, setLoading] = useState(true); // Estado para manejar la carga
     const route = useRoute();
     const [keyBoardVisible, setKeyBoardVisible] = useState();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+
+
+    const handleImagePress = (imageUrl) => {
+        setSelectedImage(imageUrl);
+        setModalVisible(true); // Abre el modal
+    };
+
+    const handleCloseModal = () => {
+        setModalVisible(false);
+        setSelectedImage(null);
+    };
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -82,7 +96,15 @@ export default function EspaciosScreen() {
 
     const renderEspacio = ({ item }) => (
         <TouchableOpacity style={styles.espacioContainer} onPress={() => handleCardPress(item)}>
-            {item.imagen && <Image source={{ uri: item.imagen }} style={styles.espacioImagen} />}
+            {item.urlImagen ? (
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <TouchableOpacity onPress={() => handleImagePress(item.urlImagen)}>
+                        <Image source={{ uri: item.urlImagen }} style={styles.espacioImagen} />
+                    </TouchableOpacity>
+                </View>
+            ) : (
+                <Text style={{ height: 0 }}> </Text>  // Muestra un mensaje si no hay imagen
+            )}
             <Text style={styles.espacioNombre}>{item.nombre}</Text>
             <Text style={styles.espacioDescripcion}>{item.descripcion}</Text>
         </TouchableOpacity>
@@ -132,6 +154,27 @@ export default function EspaciosScreen() {
                                     columnWrapperStyle={{ justifyContent: 'space-between' }}
                                 />
                             </View>
+                            {/* Modal para mostrar la imagen en grande */}
+                            <Modal
+                                visible={modalVisible}
+                                transparent={true}
+                                animationType="fade"
+                                onRequestClose={handleCloseModal}
+                            >
+                                <TouchableOpacity
+                                    style={styles.modalBackground}
+                                    onPress={handleCloseModal}
+                                >
+                                    <View style={styles.modalContainer}>
+                                        {selectedImage && (
+                                            <Image
+                                                source={{ uri: selectedImage }}
+                                                style={styles.modalImage}
+                                            />
+                                        )}
+                                    </View>
+                                </TouchableOpacity>
+                            </Modal>
                         </View>
                     </TouchableWithoutFeedback>
                 </KeyboardAvoidingView>
@@ -205,8 +248,8 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     espacioImagen: {
-        width: 70,
-        height: 70,
+        width: 100,
+        height: 100,
         borderRadius: 12,
     },
     espacioNombre: {
@@ -220,5 +263,20 @@ const styles = StyleSheet.create({
         color: '#757575',
         fontWeight: '500',
         marginTop: 4,
+    },
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    },
+    modalContainer: {
+        width: '90%',
+        height: '80%',
+    },
+    modalImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'contain',
     },
 });

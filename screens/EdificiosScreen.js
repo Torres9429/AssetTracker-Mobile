@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { getEdificios } from '../api/edificios';
 import Animated from 'react-native-reanimated';
 import { duplicateInventario } from '../api/inventariosApi';
@@ -62,22 +62,24 @@ export default function EdificiosScreen() {
   }, []);
 
   // Obtiene los edificios desde la API
-  useEffect(() => {
-    const fetchEdificios = async () => {
-      try {
-        const response = await getEdificios(); // Llama a la API para obtener los edificios
-        console.log('Edificios:', response.data.result); // Muestra los edificios en la consola
-
-        setEdificios(response.data.result || []); // Almacena los edificios en el estado
-      } catch (error) {
-        console.error('Error al obtener los edificios:', error);
-      } finally {
-        setLoading(false); // Finaliza el estado de carga
-      }
-    };
-
-    fetchEdificios();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchEdificios = async () => {
+        try {
+          const response = await getEdificios();
+          console.log('Edificios:', response.data.result);
+          setEdificios(response.data.result || []);
+        } catch (error) {
+          console.error('Error al obtener los edificios:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchEdificios();
+    }, [])
+  );
+  
 
   // Filtra los edificios según la búsqueda
   const filteredEdificios = edificios.filter((edificio) =>

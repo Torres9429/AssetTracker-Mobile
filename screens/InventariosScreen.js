@@ -21,6 +21,8 @@ import { getResponsable } from '../api/responsablesApi';
 import { getEdificiosId } from '../api/edificios';
 import { getEspacios, getEspaciosId } from '../api/espaciosApi';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { updateInventario } from '../api/inventariosApi';
+import * as FileSystem from 'expo-file-system';
 
 const { width, height } = Dimensions.get('window');
 
@@ -32,7 +34,8 @@ export default function InventariosScreen() {
     const [responsable, setResponsable] = useState('');
     const route = useRoute();
     const [expandedIndex, setExpandedIndex] = useState(null);  // Estado para manejar el índice expandido
-    const { inventario } = route.params || {};
+    const { inventario, photoUri } = route.params || {};
+    const [foto, setFoto] = useState(null);  // Estado para manejar la foto
 
     const [keyBoardVisible, setKeyBoardVisible] = useState();
     const [espacioNombre, setEspacioNombre] = useState('');
@@ -64,67 +67,108 @@ export default function InventariosScreen() {
     }*/
 
 
-        useFocusEffect(
-            useCallback(() => {
-                const fetchData = async () => {
-                    if (!inventario || !inventario.id) {
-                        console.error('Error: El parámetro inventario no está definido correctamente.');
-                        return;
-                    }
-        
-                    try {
-                        console.log('Inventario ID recibido:', inventario.id);
-        
-                        // Obtener el espacio
-                        const espacioId = inventario.espacio.id;
-                        const espacioResponse = await getEspaciosId(espacioId);
-                        const espacioData = espacioResponse.data.result;
-                        setEspacioNombre(espacioData.nombre);
-        
-                        // Obtener el edificio
-                        const edificioId = espacioData.edificio.id;
-                        const edificioResponse = await getEdificiosId(edificioId);
-                        const edificioData = edificioResponse.data.result;
-                        setEdificioNombre(edificioData.nombre);
-        
-                        // Obtener recursos del inventario
-                        const response = await getRecursoId(inventario.id);
-                        const allRecursosResponse = response.data.result || [];
-        
-                        const filteredRecursos = allRecursosResponse.filter(
-                            (recurso) => inventario.id === recurso.inventarioLevantado.id
-                        );
-        
-                        const recursosConResponsables = await Promise.all(
-                            filteredRecursos.map(async (recurso) => {
-                                if (recurso.responsable && recurso.responsable.id) {
-                                    try {
-                                        const response = await getResponsable(recurso.responsable.id);
-                                        const nombre = response?.data?.result?.nombre || 'No encontrado';
-                                        return { ...recurso, nombreResponsable: nombre };
-                                    } catch {
-                                        return { ...recurso, nombreResponsable: 'Error al obtener' };
-                                    }
-                                } else {
-                                    return { ...recurso, nombreResponsable: 'Sin responsable' };
+    useFocusEffect(
+        useCallback(() => {
+            const fetchData = async () => {
+                if (!inventario || !inventario.id) {
+                    console.error('Error: El parámetro inventario no está definido correctamente.');
+                    return;
+                }
+
+                try {
+                    console.log('Inventario ID recibido:', inventario.id);
+
+                    // Obtener el espacio
+                    const espacioId = inventario.espacio.id;
+                    const espacioResponse = await getEspaciosId(espacioId);
+                    const espacioData = espacioResponse.data.result;
+                    setEspacioNombre(espacioData.nombre);
+
+                    // Obtener el edificio
+                    const edificioId = espacioData.edificio.id;
+                    const edificioResponse = await getEdificiosId(edificioId);
+                    const edificioData = edificioResponse.data.result;
+                    setEdificioNombre(edificioData.nombre);
+
+                    // Obtener recursos del inventario
+                    const response = await getRecursoId(inventario.id);
+                    const allRecursosResponse = response.data.result || [];
+
+                    const filteredRecursos = allRecursosResponse.filter(
+                        (recurso) => inventario.id === recurso.inventarioLevantado.id
+                    );
+
+                    const recursosConResponsables = await Promise.all(
+                        filteredRecursos.map(async (recurso) => {
+                            if (recurso.responsable && recurso.responsable.id) {
+                                try {
+                                    const response = await getResponsable(recurso.responsable.id);
+                                    const nombre = response?.data?.result?.nombre || 'No encontrado';
+                                    return { ...recurso, nombreResponsable: nombre };
+                                } catch {
+                                    return { ...recurso, nombreResponsable: 'Error al obtener' };
                                 }
-                            })
-                        );
-        
-                        setRecursos(recursosConResponsables);
-                    } catch (error) {
-                        setRecursos([]);
-                    } finally {
-                        setLoading(false);
+                            } else {
+                                return { ...recurso, nombreResponsable: 'Sin responsable' };
+                            }
+                        })
+                    );
+
+                    setRecursos(recursosConResponsables);
+                    if (photoUri) {
+                        setFoto(photoUri);  // Asegúrate de que esto sea la URI y no el objeto completo.
+                        console.log('Foto tomada:', photoUri);  // Revisa si la URI de la foto está llegando correctamente.
                     }
+                } catch (error) {
+                    setRecursos([]);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchData();
+
+            // No cleanup needed
+        }, [inventario?.id])
+    );
+
+    const handleSaveInventario = async () => {
+        if (foto) {
+            console.log('Guardando foto en el inventario:', foto);
+            try {
+                console.log('URI de la foto:', foto.uri);
+                console.log('Tipo de la foto:', foto.type);
+                console.log('Nombre de la foto:', foto.name);
+                // Leer la foto como base64
+                const fileData = await FileSystem.readAsStringAsync(foto.uri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+
+                const file = {
+                    uri: foto.uri,
+                    type: foto.type || 'image/jpeg', // Asegúrate del tipo
+                    name: foto.name || 'foto.jpg',
+                    base64: fileData, // Agregar base64 al archivo
                 };
-        
-                fetchData();
-        
-                // No cleanup needed
-            }, [inventario?.id])
-        );
-        
+                console.log('Datos del archivo:', file);
+
+                const response = await updateInventario(inventario.id, file);
+                console.log('Respuesta de actualizar inventario:', response.data);
+
+                if (response.data && response.data.result) {
+                    const updatedId = response.data.result.id;
+                    console.log('Inventario actualizado con ID:', updatedId);
+
+                    navigation.goBack(); // Regresar a la pantalla anterior
+                }
+                setModoEdicion(false); // Cambiar a modo no edición
+            } catch (error) {
+                console.error("Error actualizando el inventario:", error);
+            }
+        } else {
+            alert('No se ha tomado una foto.');
+        }
+    };
 
     const filteredInventarios = recursos.filter((recurso) => {
         const codigo = recurso.codigo ? recurso.codigo.toLowerCase() : '';
@@ -142,6 +186,10 @@ export default function InventariosScreen() {
         }
     };
 
+    const handleTakePhoto = (uri) => {
+        console.log('Foto recibida en CrearInventarioScreen:', uri);
+        setFoto(uri);  // Guardar la URI de la foto en el estado
+    };
     const renderRecurso = ({ item, index }) => (
         <View style={styles.recursoContainer}>
             <TouchableOpacity onPress={() => handleToggleDetails(index)}>
@@ -161,7 +209,7 @@ export default function InventariosScreen() {
                     <Text style={styles.detalleTexto}>Edificio: {edificioNombre || 'Sin edificio'}</Text>
                 </View>
             )}
-            
+
         </View>
     );
 
@@ -202,10 +250,14 @@ export default function InventariosScreen() {
                                     </TouchableOpacity>
                                 ) : (
                                     <View style={styles.editActions}>
-                                        <TouchableOpacity onPress={() => navigation.navigate('Agregar', {inventarioId: inventario.id})} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25, marginRight: 5 }}>
+                                        <TouchableOpacity onPress={() => navigation.navigate('Agregar', { inventarioId: inventario.id })} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25, marginRight: 5 }}>
                                             <Ionicons name="add" size={24} color="white" />
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => setModoEdicion(false)} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}>
+
+                                        <TouchableOpacity style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25, marginRight: 5 }} onPress={() => navigation.navigate('CameraScreen', { onPhotoTaken: handleTakePhoto })}>
+                                            <Ionicons name="camera" size={24} color="white" />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={handleSaveInventario} style={{ backgroundColor: '#152567', padding: 12, flexDirection: 'row', borderRadius: 25 }}>
                                             {/*<Ionicons name="save-outline" size={24} color="white" />*/}
                                             <MaterialCommunityIcons name="content-save-edit" size={24} color="white" />
                                         </TouchableOpacity>
@@ -224,6 +276,8 @@ export default function InventariosScreen() {
                                     showsVerticalScrollIndicator={false}
                                 />
                             </View>
+                            {/* Muestra la foto si se ha tomado */}
+                            {foto && <Image source={{ uri: foto.uri }} style={styles.foto} />}
                         </View>
                     </TouchableWithoutFeedback>
                 </KeyboardAvoidingView>
@@ -328,5 +382,13 @@ const styles = StyleSheet.create({
         color: '#333',
         marginBottom: 6,
         fontWeight: '400',
+    },
+    foto: {
+        width: 200,
+        height: 200,
+        borderRadius: 10,
+        marginVertical: 10,
+        alignSelf: 'center',
+        bottom: 70,
     },
 });
